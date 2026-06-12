@@ -15,6 +15,7 @@ import { Fechamento } from "./components/Fechamento";
 import { GestaoPermissoes } from "./components/GestaoPermissoes";
 import { Horarios } from "./components/Horarios";
 import { Pacientes } from "./components/Pacientes";
+import { Login } from "./components/Login";
 
 export default function App() {
   const [view, setView] = useState<string>("home");
@@ -123,11 +124,14 @@ export default function App() {
         return (
           <CadastroUsuario setView={setView} />
         );
+      case "login":
+        return (
+          <Login setView={setView} />
+        );
       case "planos":
       case "repasses":
       case "relatorios":
       case "encaminhamentos":
-      case "login":
         return (
           <div className="p-10 max-w-lg mx-auto text-center mt-28 bg-white shadow-xl rounded-[2.5rem] border border-gray-100 flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-[#0a2d54] text-white flex items-center justify-center font-black text-xl mb-4">SC</div>

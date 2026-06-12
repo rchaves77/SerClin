@@ -348,16 +348,73 @@ const mockSupabase = {
       list.push(newUser);
       localStorage.setItem("serclin_db_perfis", JSON.stringify(list));
 
+      const sessionUser = {
+        id: newUserId,
+        email,
+        user_metadata: options?.data || {},
+      };
+
+      localStorage.setItem("serclin_session_user", JSON.stringify(sessionUser));
+
       return {
         data: {
-          user: {
-            id: newUserId,
-            email,
-            user_metadata: options?.data || {},
-          },
+          user: sessionUser,
         },
         error: null,
       };
+    },
+    async signInWithPassword({ email, password }: any) {
+      initLocalStorageDB();
+      const cleanEmail = email.toLowerCase().trim();
+      const rawData = localStorage.getItem("serclin_db_perfis") || "[]";
+      const list = JSON.parse(rawData);
+      
+      let userProfile = list.find((u: any) => u.email.toLowerCase().trim() === cleanEmail);
+      
+      if (!userProfile && (cleanEmail === "romulochaves77@gmail.com" || cleanEmail === "nahpsicologiachaves@gmail.com")) {
+        userProfile = {
+          id: Math.random().toString(36).substr(2, 10),
+          email: cleanEmail,
+          nome: cleanEmail === "romulochaves77@gmail.com" ? "Dr. Rômulo Chaves" : "Dra. Nahara Chaves",
+          role: "admin",
+          cor: "#0a2d54",
+        };
+        list.push(userProfile);
+        localStorage.setItem("serclin_db_perfis", JSON.stringify(list));
+      }
+
+      if (!userProfile) {
+        userProfile = {
+          id: Math.random().toString(36).substr(2, 10),
+          email: cleanEmail,
+          nome: cleanEmail.split("@")[0].toUpperCase(),
+          role: "profissional",
+          cor: "#4f46e5"
+        };
+        list.push(userProfile);
+        localStorage.setItem("serclin_db_perfis", JSON.stringify(list));
+      }
+
+      const sessionUser = {
+        id: userProfile.id,
+        email: userProfile.email,
+        user_metadata: { full_name: userProfile.nome }
+      };
+
+      localStorage.setItem("serclin_session_user", JSON.stringify(sessionUser));
+      return { data: { user: sessionUser }, error: null };
+    },
+    async getUser() {
+      initLocalStorageDB();
+      const stored = localStorage.getItem("serclin_session_user");
+      if (stored) {
+        return { data: { user: JSON.parse(stored) }, error: null };
+      }
+      return { data: { user: null }, error: null };
+    },
+    async signOut() {
+      localStorage.removeItem("serclin_session_user");
+      return { error: null };
     },
     async resetPasswordForEmail(email: string, options?: any) {
       console.log(`[Mock Auth] Reset password email scheduled for ${email}`);
