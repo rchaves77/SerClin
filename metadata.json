@@ -1,0 +1,6 @@
+{
+  "name": "Instituto SerClin",
+  "description": "Portal de saúde integrada e bem-estar do Instituto SerClin com agendamento inteligente e assistente médico inteligente por IA (Gemini).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

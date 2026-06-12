@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cinzel", Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --color-primary: #0a2d54;
+  --color-secondary: #bfa571;
+  --color-brand-blue-dark: #0a2d54;
+  --color-brand-blue-light: #f0f4f8;
+  --color-brand-gold: #bfa571;
+  --color-brand-gold-dark: #9e814d;
+  --color-brand-gold-light: #fdfaf4;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
