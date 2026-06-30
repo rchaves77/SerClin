@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ShieldCheck, Sparkles, Calendar, MessageSquare, ShieldAlert } from "lucide-react";
 
 interface HeroProps {
@@ -8,6 +9,14 @@ export function Hero({ setView }: HeroProps) {
   const triggerView = (v: string) => {
     if (setView) setView(v);
   };
+
+  const clinicImages = [
+    { src: "/hero.jpg", label: "Espaço Integrado", desc: "Consultório moderno planejado para o seu absoluto bem-estar." },
+    { src: "/consultation_room.jpg", label: "Sala Acolhimento", desc: "Ambiente confortável decorado para diminuir o estresse emocional." },
+    { src: "/team.jpg", label: "Equipe Multidisciplinar", desc: "Nossos médicos e terapeutas discutindo casos clínicos integrados." }
+  ];
+
+  const [activeIndex, setActiveIndex] = useState(0);
 
   return (
     <section className="bg-gradient-to-b from-brand-blue-light/30 via-slate-50 to-white pt-24 pb-16 md:pt-32 md:pb-24 border-b border-gray-100 text-left">
@@ -62,15 +71,40 @@ export function Hero({ setView }: HeroProps) {
           <div className="lg:col-span-5 relative">
             <div className="absolute inset-0 bg-gradient-to-tr from-brand-blue-light/50 to-brand-gold-light/50 rounded-[3rem] transform rotate-3 scale-105 filter blur-xs"></div>
             
-            <div className="relative rounded-[3rem] overflow-hidden border-4 border-white shadow-2xl bg-[#eff6ff] h-[400px] md:h-[480px]">
+            <div className="relative rounded-[3rem] overflow-hidden border-4 border-white shadow-2xl bg-[#eff6ff] h-[400px] md:h-[480px] flex flex-col justify-between">
               <img 
-                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800" 
-                alt="Instituto SerClin Consultores" 
-                className="w-full h-full object-cover object-center grayscale hover:grayscale-0 transition-all duration-700" 
+                src={clinicImages[activeIndex].src} 
+                alt={clinicImages[activeIndex].label} 
+                className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-500" 
+                referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-primary/95 via-primary/40 to-transparent p-8 text-white text-left">
-                <p className="text-[10px] font-black uppercase text-[#bfa571] tracking-widest mb-1 font-mono">Nosso Espaço</p>
-                <h4 className="font-extrabold text-lg leading-tight uppercase font-sans">Instalações projetadas para o seu máximo bem-estar.</h4>
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/30 to-transparent pointer-events-none"></div>
+              
+              {/* Dynamic top tabs for image switcher */}
+              <div className="relative z-10 flex gap-2 p-4 justify-center bg-black/10 backdrop-blur-xs">
+                {clinicImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveIndex(idx)}
+                    className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-200 cursor-pointer border-none ${
+                      activeIndex === idx 
+                        ? "bg-white text-primary shadow-sm" 
+                        : "bg-white/20 text-white hover:bg-white/35"
+                    }`}
+                  >
+                    {img.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Text indicator */}
+              <div className="relative z-10 p-8 text-white text-left mt-auto">
+                <p className="text-[10px] font-black uppercase text-[#dfca9e] tracking-[0.2em] mb-1 font-mono">
+                  {clinicImages[activeIndex].label}
+                </p>
+                <h4 className="font-extrabold text-sm sm:text-base leading-snug uppercase font-sans">
+                  {clinicImages[activeIndex].desc}
+                </h4>
               </div>
             </div>
           </div>

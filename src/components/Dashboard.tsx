@@ -24,8 +24,8 @@ import QRCode from 'qrcode';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-// Safe base64 transparent pixel to prevent bundle/path errors for ser2.png
-const logoSer2 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+// Original brand logo path for PDF reports
+const logoSer2 = "/logo_full.png";
 
 // --- CONFIGURAÇÃO DE TRADUÇÃO ---
 const locales = { 'pt-BR': ptBR };
@@ -261,11 +261,21 @@ export function Dashboard({ setView }: DashboardProps) {
         return;
       }
 
+      const loadImage = (src: string): Promise<HTMLImageElement> => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = (e) => reject(e);
+          img.src = src;
+        });
+      };
+
+      const logoImg = await loadImage(logoSer2);
       const urlValidacao = `https://institutoserclin.vercel.app/validar/${val.id}`;
       const qrCodeDataUrl = await QRCode.toDataURL(urlValidacao);
       const doc = new jsPDF();
       
-      doc.addImage(logoSer2, 'PNG', 75, 10, 60, 40);
+      doc.addImage(logoImg, 'PNG', 75, 10, 60, 40);
       
       doc.setFontSize(16); doc.setFont("helvetica", "bold"); doc.setTextColor(10, 45, 84);
       doc.text("ATESTADO DE COMPARECIMENTO", 105, 60, { align: "center" });
