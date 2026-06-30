@@ -6,9 +6,9 @@ import { format, parse, startOfWeek, getDay, addMinutes, addDays, isSameDay } fr
 import { ptBR } from 'date-fns/locale';
 import { 
   LogOut, Layout, Calendar as CalendarIcon, Plus, X, Trash2, 
-  FileText, GraduationCap,  
+  FileText, BarChart3, Shield, Clock, Users, GraduationCap,  
   CheckCircle, RefreshCw, Wallet, Receipt, Calculator, Scale, Search, 
-  MessageCircle, Send, User, Filter
+  MessageCircle, Send, User, Menu, Filter
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,10 +22,8 @@ import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import QRCode from 'qrcode'; 
 
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-
-// Original brand logo path for PDF reports
 const logoSer2 = "/logo_full.png";
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 // --- CONFIGURAÇÃO DE TRADUÇÃO ---
 const locales = { 'pt-BR': ptBR };
@@ -77,29 +75,24 @@ const EventoCustomizado = ({ event }: any) => {
   );
 };
 
-interface DashboardProps {
-  setView: (view: string) => void;
-}
-
-export function Dashboard({ setView }: DashboardProps) {
+export function Dashboard({ setView: setAppView }: { setView?: (view: string) => void }) {
   const navigate = (path: string) => {
-    if (path === '/') setView('home');
-    else if (path === '/sistema/pacientes') setView('pacientes');
+    if (!setAppView) return;
+    if (path === '/') setAppView('home');
+    else if (path === '/sistema/pacientes') setAppView('pacientes');
+    else if (path === '/sistema/planos') setAppView('planos');
+    else if (path === '/sistema/despesas') setAppView('despesas');
+    else if (path === '/sistema/repasses') setAppView('repasses');
+    else if (path === '/sistema/fechamento') setAppView('fechamento');
+    else if (path === '/sistema/relatorios') setAppView('relatorios');
+    else if (path === '/sistema/permissoes') setAppView('gestao-permissoes');
+    else if (path === '/sistema/encaminhamentos') setAppView('encaminhamentos');
+    else if (path === '/sistema/usuarios') setAppView('cadastro-usuario');
     else if (path.startsWith('/sistema/pacientes/')) {
-      const pid = path.split('/').pop() || '';
-      setView(`pacientes-${pid}`);
+      const patientId = path.split('/sistema/pacientes/')[1];
+      setAppView('pacientes-' + patientId);
     }
-    else if (path === '/sistema/planos') setView('planos');
-    else if (path === '/sistema/despesas') setView('despesas');
-    else if (path === '/sistema/repasses') setView('repasses');
-    else if (path === '/sistema/fechamento') setView('fechamento');
-    else if (path === '/sistema/relatorios') setView('relatorios');
-    else if (path === '/sistema/usuarios') setView('gestao-permissoes');
-    else if (path === '/sistema/encaminhamentos') setView('encaminhamentos');
-    else if (path === '/login') setView('login');
-    else setView('acessos');
   };
-
   const { isAdmin, isSecretaria } = usePerfil();
 
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -109,7 +102,7 @@ export function Dashboard({ setView }: DashboardProps) {
   
   const sigCanvas = useRef<SignatureCanvas>(null);
   
-  const [view, setViewCalendar] = useState<View>(window.innerWidth < 768 ? Views.AGENDA : Views.WEEK);
+  const [view, setView] = useState<View>(window.innerWidth < 768 ? Views.AGENDA : Views.WEEK);
   const [date, setDate] = useState(new Date());
   const [events, setEvents] = useState<any[]>([]);
   const [equipe, setEquipe] = useState<any[]>([]);
@@ -133,7 +126,12 @@ export function Dashboard({ setView }: DashboardProps) {
     forma_pagamento: "Pix"
   });
 
-
+  // --- REGRA DE ACESSO DA ESTÁCIO ---
+  const isEstacio = userEmail ? (
+    userEmail.endsWith('@alunos.estacio.br') || 
+    userEmail.endsWith('@professores.estacio.br') || 
+    userEmail.endsWith('@estacio.br')
+  ) : false;
 
   const fetchData = async () => {
     try {
@@ -203,7 +201,7 @@ export function Dashboard({ setView }: DashboardProps) {
               title: `${evt.paciente_nome} (S${evt.sala_id})`,
               start: dataInicio,
               end: dataFim,
-              color: perfil?.cor || '#0a2d54',
+              color: perfil?.cor || '#1e3a8a',
               original: evt
             };
           });
@@ -277,7 +275,7 @@ export function Dashboard({ setView }: DashboardProps) {
       
       doc.addImage(logoImg, 'PNG', 75, 10, 60, 40);
       
-      doc.setFontSize(16); doc.setFont("helvetica", "bold"); doc.setTextColor(10, 45, 84);
+      doc.setFontSize(16); doc.setFont("helvetica", "bold"); doc.setTextColor(30, 58, 138);
       doc.text("ATESTADO DE COMPARECIMENTO", 105, 60, { align: "center" });
       
       const textoCorpo = `Declaramos para os devidos fins de comprovação que o(a) paciente ${form.paciente_nome.toUpperCase()} esteve presente no INSTITUTO SERCLIN para atendimento especializado no dia ${format(new Date(form.inicio), "dd/MM/yyyy")}. O atendimento teve início às ${format(new Date(form.inicio), "HH:mm")} sob a responsabilidade do(a) profissional ${form.profissional.toUpperCase()}.`;
@@ -293,7 +291,7 @@ export function Dashboard({ setView }: DashboardProps) {
       doc.setFontSize(8); doc.setFont("helvetica", "italic"); doc.setTextColor(100, 100, 100);
       doc.text("Escaneie o QR Code acima ou acesse o link abaixo para validar a autenticidade:", 105, 230, { align: "center" });
       
-      doc.setFont("helvetica", "bold"); doc.setTextColor(191, 165, 113);
+      doc.setFont("helvetica", "bold"); doc.setTextColor(37, 99, 235);
       doc.text(urlValidacao, 105, 235, { align: "center" });
       doc.link(20, 231, 170, 6, { url: urlValidacao }); 
       
@@ -328,7 +326,49 @@ export function Dashboard({ setView }: DashboardProps) {
     try {
       const dInicio = new Date(form.inicio);
       const dFim = addMinutes(dInicio, parseInt(form.duracao));
-      
+
+      // =========================================================================
+      // 🌟 VALIDAÇÃO DE DIAS E HORÁRIOS DA CENTRAL DE CONFIGURAÇÃO (NÃO REMOVER)
+      // =========================================================================
+      const diasSemanaMap = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
+      const diaDaSemanaDesejado = diasSemanaMap[dInicio.getDay()]; // Retorna 'DOM', 'SEG', etc.
+
+      // Encontra as regras do profissional atual dentro do estado 'equipe' do seu Dashboard
+      const profesionalConfig = equipe.find(p => p.nome?.trim().toLowerCase() === form.profissional?.trim().toLowerCase());
+
+      if (profesionalConfig) {
+        // 1. Validar Dias Permitidos
+        let diasPermitidos: string[] = [];
+        if (Array.isArray(profesionalConfig.dias_atendimento)) {
+          diasPermitidos = profesionalConfig.dias_atendimento;
+        } else if (typeof profesionalConfig.dias_atendimento === 'string') {
+          try { diasPermitidos = JSON.parse(profesionalConfig.dias_atendimento); } 
+          catch { diasPermitidos = profesionalConfig.dias_atendimento.split(','); }
+        }
+
+        // Se o gestor configurou os dias na central, valida se o dia atual está liberado
+        if (diasPermitidos.length > 0 && !diasPermitidos.includes(diaDaSemanaDesejado)) {
+          setLoading(false);
+          return toast.error(`Este profissional não está configurado para atender na ${diaDaSemanaDesejado}.`, {
+            description: "Ative este dia na tela de Configurações para liberar."
+          });
+        }
+
+        // 2. Validar Limites de Horário (Início e Fim)
+        if (profesionalConfig.hora_inicio && profesionalConfig.hora_fim) {
+          const horaMinutosAgendamento = format(dInicio, "HH:mm:ss");
+          const horaMinutosFimAgendamento = format(dFim, "HH:mm:ss");
+
+          if (horaMinutosAgendamento < profesionalConfig.hora_inicio || horaMinutosFimAgendamento > profesionalConfig.hora_fim) {
+            setLoading(false);
+            return toast.error("Horário fora do expediente deste profissional!", {
+              description: `Permitido: ${profesionalConfig.hora_inicio.substring(0,5)}h às ${profesionalConfig.hora_fim.substring(0,5)}h.`
+            });
+          }
+        }
+      }
+      // =========================================================================
+
       let idDoPaciente = form.paciente_id;
 
       // 1. Lógica de Auto-cadastro de Paciente (Neuropsicologia costuma ter muitos novos)
@@ -361,27 +401,64 @@ export function Dashboard({ setView }: DashboardProps) {
           .replace(",", ".")
       ) || 0;
 
+      // --- SANITIZAÇÃO E BLINDAGEM DE TIPOS PARA EVITAR ERRO 400 ---
+      const salaNumero = parseInt(form.sala) || 1;
+
       const payload = {
-        sala_id: parseInt(form.sala),
+        sala_id: salaNumero,
         profissional_nome: form.profissional,
         paciente_nome: buscaPaciente.toUpperCase(),
-        paciente_id: idDoPaciente,
-        paciente_telefone: form.telefone,
+        paciente_id: idDoPaciente || null, // Garante null válido se não houver ID
+        paciente_telefone: form.telefone || "",
         data_inicio: dInicio.toISOString(),
         data_fim: dFim.toISOString(),
         status: mapearStatusParaBanco(form.status),
-        assinatura_url: assinaturaBase64,
+        assinatura_url: assinaturaBase64 || null, // Evita undefined se estiver vazio
         valor_atendimento: valorLimpo,
-        forma_pagamento: form.forma_pagamento
+        forma_pagamento: form.forma_pagamento || "Pix"
       };
 
-      // 4. Update ou Insert
+      // 4. Update ou Insert do Agendamento
       const { error } = eventoSelecionadoId 
         ? await supabase.from('agendamentos').update(payload).eq('id', eventoSelecionadoId) 
         : await supabase.from('agendamentos').insert([payload]);
 
-      if (error) throw error;
+      // 🌟 DIAGNÓSTICO ATIVO: Mostra a coluna exata que quebrou no console F12
+      if (error) {
+        console.error("Erro detalhado do Supabase na tabela agendamentos:", error);
+        throw new Error(`Erro no banco: ${error.message} (Código: ${error.code})`);
+      }
 
+      // =========================================================================
+      // 🌟 REGISTRO AUTOMÁTICO DE EVOLUÇÃO DIÁRIA POR COMPARECIMENTO
+      // =========================================================================
+      if (mapearStatusParaBanco(form.status) === 'Presenca' && idDoPaciente) {
+        const dataHoje = new Date();
+        const dataFormatada = dataHoje.toLocaleDateString('pt-BR');
+        const horaFormatada = dataHoje.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        
+        const textoPresencaGenerico = `[Registro Automático de Comparecimento]\n\n` +
+          `• Status: Presença confirmada no consultório em ${dataFormatada} às ${horaFormatada}.\n` +
+          `• Paciente: ${buscaPaciente.toUpperCase()}\n` +
+          `• Profissional Responsável: ${form.profissional || 'Profissional SerClin'}\n` +
+          `• Sala de Atendimento: Sala 0${form.sala || '1'}\n\n` +
+          `--------------------------------------------------\n` +
+          `EVOLUÇÃO CLÍNICA DA SESSÃO (Espaço reservado para o profissional):\n\n`;
+
+        const { error: erroProntuario } = await supabase.from("prontuarios").insert([{
+          paciente_id: idDoPaciente,
+          tipo_registro: "Sessão", 
+          descricao: textoPresencaGenerico,
+          profissional_nome: form.profissional || "Profissional SerClin",
+          historico: []
+        }]);
+
+        if (erroProntuario) {
+          console.error("Erro detalhado ao gerar evolução automática:", erroProntuario);
+        }
+      }
+      // =========================================================================
+         
       // 5. Feedback e Refresh
       setIsAgendamentoOpen(false);
       setEventoSelecionadoId(null);
@@ -390,7 +467,16 @@ export function Dashboard({ setView }: DashboardProps) {
 
     } catch (err: any) {
       console.error("Erro SerClin Save:", err);
-      toast.error(err.message || "Erro ao salvar na agenda.");
+      
+      // Mapeia o erro de choque de horário do banco de dados para a secretária entender
+      if (err.toString().includes("no_profissional_overlap") || (err.message && err.message.includes("no_profissional_overlap"))) {
+        toast.error("⚠️ CHOQUE DE HORÁRIO DETECTADO!", {
+          description: "O(A) profissional selecionado(a) já possui outro atendimento agendado nesta mesma faixa de horário. Escolha outro horário ou verifique a agenda deste profissional.",
+          duration: 8000,
+        });
+      } else {
+        toast.error(err.message || "Erro ao salvar na agenda.");
+      }
     } finally {
       setLoading(false);
     }
@@ -407,173 +493,34 @@ export function Dashboard({ setView }: DashboardProps) {
   const maxTime = new Date(2024, 0, 1, 20, 0, 0);
 
   return (
-    <div className="h-[100dvh] w-full bg-gray-50 flex flex-col font-sans overflow-hidden text-left" id="dashboard-system-root">
+    <div className="h-[100dvh] w-full bg-gray-50 flex flex-col font-sans overflow-hidden text-left">
       <style>{`
-        /* Visual Geral da Agenda - Altura Otimizada */
-        .rbc-calendar {
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-          min-height: 0;
-        }
-
-        /* Redução drástica do espaçamento vertical excessivo (Grid ultra-eficiente) */
-        .rbc-timeslot-group {
-          min-height: 40px !important; /* Em vez do padrão de 80px */
-          border-bottom: 1px solid #f3f4f6 !important;
-        }
-        .rbc-time-slot {
-          min-height: 20px !important;
-          font-size: 10px !important;
-          padding: 1px 0 !important;
-        }
-        .rbc-time-gutter .rbc-timeslot-group {
-          border-bottom: none !important;
-        }
-
-        /* Estilo da barra de rolagem interna */
-        .rbc-time-content {
-          flex: 1 1 0% !important;
-          overflow-y: auto !important;
-          min-height: 0 !important;
-          scrollbar-width: thin;
-          scrollbar-color: #cbd5e1 #f1f5f9;
-        }
-        .rbc-time-content::-webkit-scrollbar {
-          width: 6px;
-        }
-        .rbc-time-content::-webkit-scrollbar-track {
-          background: #f1f5f9;
-        }
-        .rbc-time-content::-webkit-scrollbar-thumb {
-          background-color: #cbd5e1;
-          border-radius: 3px;
-        }
-
-        /* Garantir Cabeçalho Fixo (Sticky Header) */
-        .rbc-time-view {
-          display: flex !important;
-          flex-direction: column !important;
-          flex: 1 1 0% !important;
-          min-height: 0 !important;
-          border-radius: 1.5rem;
-          overflow: hidden;
-          border: 1px solid #e5e7eb;
-          background-color: #ffffff;
-        }
-        .rbc-time-header {
-          flex: 0 0 auto !important;
-          position: sticky !important;
-          top: 0 !important;
-          z-index: 10 !important;
-          background-color: #ffffff;
-          border-bottom: 1px solid #e5e7eb;
-        }
-
-        /* Estilo Compacto de Eventos */
-        .rbc-event {
-          padding: 1px 3px !important;
-          min-height: 16px !important;
-          transition: transform 0.1s ease-in-out;
-        }
-        .rbc-event:hover {
-          transform: scale(0.99);
-        }
-        .rbc-event-content {
-          font-size: 11px !important;
-          font-weight: 800 !important;
-          line-height: 1.15 !important;
-          text-transform: uppercase;
-        }
-
-        /* Estilo de Agenda de Compromissos (Mobile) */
-        .rbc-agenda-view {
-          background-color: #ffffff;
-          border-radius: 1.5rem;
-          overflow: hidden;
-          border: 1px solid #e5e7eb;
-          height: 100% !important;
-          display: flex;
-          flex-direction: column;
-        }
-        .rbc-agenda-view .rbc-agenda-content {
-          overflow-y: auto !important;
-          flex: 1 1 0% !important;
-          min-height: 0 !important;
-        }
-        .rbc-agenda-view table.rbc-agenda-table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-        .rbc-agenda-view table.rbc-agenda-table thead {
-          position: sticky !important;
-          top: 0 !important;
-          z-index: 10 !important;
-          background-color: #f8fafc !important;
-          border-bottom: 2px solid #e2e8f0;
-        }
-        .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
-          color: #1f2937 !important;
-          font-weight: 800 !important;
-          font-size: 13px !important;
-          padding: 12px 16px !important;
-        }
-        .rbc-agenda-date-cell, .rbc-agenda-time-cell {
-          color: #0a2d54 !important;
-          font-weight: 800 !important;
-        }
-
-        /* Customização Geral da UI */
-        .rbc-toolbar button {
-          color: #0a2d54 !important;
-          font-weight: bold;
-          font-size: 13px !important;
-          border-radius: 0.5rem !important;
-          border: 1px solid #e5e7eb !important;
-          margin: 0 2px !important;
-        }
-        .rbc-toolbar button.rbc-active {
-          background-color: #0a2d54 !important;
-          color: white !important;
-          border-color: #0a2d54 !important;
-        }
-        .rbc-label {
-          color: #64748b !important;
-          font-weight: 800 !important;
-          font-size: 10px !important;
-        }
+        .rbc-agenda-view table.rbc-agenda-table tbody > tr > td { color: #1f2937 !important; font-weight: 800 !important; font-size: 14px !important; }
+        .rbc-agenda-view { background-color: #ffffff; border-radius: 1.5rem; overflow: hidden; border: 1px solid #e5e7eb; }
+        .rbc-agenda-date-cell, .rbc-agenda-time-cell { color: #1e3a8a !important; font-weight: 800 !important; }
+        .rbc-toolbar button { color: #1e3a8a !important; font-weight: bold; }
+        .rbc-toolbar button.rbc-active { background-color: #1e3a8a !important; color: white !important; }
+        .rbc-event-content { font-size: 13px !important; }
+        .rbc-time-view { border-radius: 1.5rem; overflow: hidden; border: 1px solid #e5e7eb; }
+        .rbc-timeslot-group { border-bottom: 1px solid #f3f4f6 !important; }
+        .rbc-label { color: #9ca3af !important; font-weight: 700 !important; font-size: 11px !important; }
 
         @media (max-width: 768px) {
-          .rbc-toolbar {
-            flex-direction: column;
-            gap: 8px;
-            height: auto !important;
-            padding: 10px !important;
-          }
-          .fixed.inset-0 .bg-white.rounded-\[2\.5rem\] {
-            max-width: 100% !important;
-            width: 100% !important;
-            height: 100% !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            padding-top: env(safe-area-inset-top, 20px) !important;
-          }
-          .sigCanvas {
-            width: 100% !important;
-            height: 120px !important;
-          }
+          .rbc-toolbar { flex-direction: column; gap: 8px; height: auto !important; padding: 10px !important; }
+          .fixed.inset-0 .bg-white.rounded-\[2\.5rem\] { max-width: 100% !important; width: 100% !important; height: 100% !important; border-radius: 0 !important; margin: 0 !important; padding-top: env(safe-area-inset-top, 20px) !important; }
+          .sigCanvas { width: 100% !important; height: 120px !important; }
         }
       `}</style>
 
      {/* HEADER INTEGRAL SERCLIN - AJUSTADO PARA MOBILE LIMPO */}
-      <header className="bg-white border-b px-4 md:px-8 shadow-sm z-50 sticky top-0 w-full">
-        <div className="flex justify-between items-center h-[72px] max-w-[1800px] mx-auto">
+      <header className="bg-white border-b px-4 md:px-8 shadow-sm z-50 sticky top-0 w-full pt-[var(--safe-top)]">
+        <div className="flex justify-between items-center h-[95px] max-w-[1800px] mx-auto">
           
           {/* ESQUERDA: LOGO AMPLIADO (PC E MOBILE) */}
           <div className="flex items-center gap-3 shrink-0 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-[#0a2d54] flex items-center justify-center text-white font-black text-xl shadow-lg border border-[#bfa571]/20">SC</div>
+            <img src={logoSer2} className="w-12 h-12 md:w-16 md:h-16 object-contain" alt="SerClin" />
             <div className="hidden sm:flex flex-col text-left">
-              <h1 className="text-sm md:text-xl font-black text-[#0a2d54] uppercase leading-none tracking-tighter">
+              <h1 className="text-sm md:text-xl font-black text-[#1e3a8a] uppercase leading-none tracking-tighter">
                 SerClin
               </h1>
               <p className="text-[7px] md:text-[11px] text-gray-500 font-bold uppercase mt-1 tracking-[0.2em]">
@@ -588,7 +535,7 @@ export function Dashboard({ setView }: DashboardProps) {
             {/* 1. PACIENTES */}
             <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/pacientes')}>
               <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50 h-10 w-10">
-                <User size={24}/>
+                <Users size={24}/>
               </Button>
               <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-blue-700">Pacientes</span>
             </div>
@@ -632,18 +579,44 @@ export function Dashboard({ setView }: DashboardProps) {
               <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-amber-600">Relatórios</span>
             </div>
 
+            {/* 7. GERENCIAR EQUIPE UNIFICADO (PC) */}
             {(isAdmin || isGestorSeguro) && (
-              <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/usuarios')}>
+              <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/permissoes')}>
                 <Button variant="ghost" size="icon" className="text-purple-600 hover:bg-purple-50 h-10 w-10">
                   <User size={24}/>
                 </Button>
-                <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-purple-600">Acessos</span>
+                <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-purple-600">Equipe</span>
               </div>
             )}
+
+            <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/encaminhamentos')}>
+              <Button variant="ghost" size="icon" className="text-emerald-600 hover:bg-emerald-50 h-10 w-10">
+                <GraduationCap size={24}/>
+              </Button>
+              <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-emerald-600">Unimeta</span>
+            </div>
           </div>
 
-          {/* DIREITA: STATUS, AGENDAR (PC) E MENU (MOBILE) */}
+         {/* DIREITA: STATUS, AGENDAR (PC) E MENU (MOBILE) */}
           <div className="flex items-center gap-4 shrink-0">
+            
+            {/* BOTÃO RETORNAR AO SITE PRINCIPAL (PC) */}
+            <Button
+              variant="ghost"
+              onClick={async () => {
+                try {
+                  await supabase.auth.signOut();
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  window.location.href = "https://institutoserclin.vercel.app";
+                }
+              }}
+              className="hidden md:flex items-center gap-2 border border-red-100 bg-red-50 hover:bg-red-100 text-red-600 font-black h-11 px-4 rounded-xl text-[10px] uppercase tracking-wider transition-all"
+            >
+              <LogOut size={15} strokeWidth={3} />
+              <span>Sair</span>
+            </Button>
             
             {/* Online Status: Só PC */}
             <div className="hidden md:flex flex-col items-end mr-1">
@@ -654,17 +627,18 @@ export function Dashboard({ setView }: DashboardProps) {
               </div>
             </div>
 
+            
             {/* Botão Agendar: Só PC */}
             <Button 
               onClick={() => { setEventoSelecionadoId(null); setIsAgendamentoOpen(true); }}
-              className="hidden md:flex bg-[#0a2d54] hover:bg-[#bfa571] text-white rounded-xl h-11 px-6 shadow-lg items-center gap-2 transition-all active:scale-95 border-none cursor-pointer"
+              className="hidden md:flex bg-[#1e3a8a] hover:bg-black text-white rounded-xl h-11 px-6 shadow-lg items-center gap-2 transition-all active:scale-95"
             >
               <Plus size={20} strokeWidth={3} />
               <span className="text-[10px] font-black uppercase">AGENDAR</span>
             </Button>
 
             {/* BOTÃO CONFIRMAR AMANHÃ (LÓGICA DE FIM DE SEMANA) */}
-            {meuPerfil?.permissao_confirmacao_amanha && (
+            {!isEstacio && meuPerfil?.permissao_confirmacao_amanha && (
               <div 
                 className="flex flex-col items-center gap-1 cursor-pointer group relative" 
                 onClick={() => setIsConfirmacaoAmanhaOpen(true)}
@@ -688,143 +662,183 @@ export function Dashboard({ setView }: DashboardProps) {
               variant="ghost" 
               size="icon" 
               onClick={() => setIsMenuMobileOpen(true)} 
-              className="md:hidden text-[#0a2d54] h-12 w-12 cursor-pointer"
+              className="md:hidden text-[#1e3a8a] h-12 w-12"
             >
               <Layout size={32} />
             </Button>
           </div>
         </div>
+      </header>
 
-        {/* GAVETA MOBILE (DRAWER) - ABRINDO DA DIREITA PARA A ESQUERDA */}
-        {isMenuMobileOpen && (
-          <div className="md:hidden fixed inset-0 z-[100] bg-black/60 flex justify-end backdrop-blur-sm" onClick={() => setIsMenuMobileOpen(false)}>
-            <div className="w-[85%] max-w-[310px] bg-white h-full shadow-2xl flex flex-col pt-16 animate-in slide-in-from-right duration-300" onClick={(e) => e.stopPropagation()}>
-              <div className="flex justify-between items-center px-6 pb-6 border-b">
-                <span className="font-black text-[#0a2d54] uppercase text-lg">Menu SerClin</span>
-                <X size={26} onClick={() => setIsMenuMobileOpen(false)} className="text-gray-400 cursor-pointer" />
+      {/* MENU MOBILE (GAVETA) - VERSÃO DEFINITIVA SERCLIN */}
+      {isMenuMobileOpen && (
+        <div className="md:hidden fixed inset-0 z-[100] bg-black/60 flex justify-start backdrop-blur-sm transition-opacity" onClick={() => setIsMenuMobileOpen(false)}>
+          <div className="w-[85%] max-w-[310px] bg-white h-full shadow-2xl flex flex-col pt-[calc(env(safe-area-inset-top,0px)+16px)] animate-in slide-in-from-left duration-300" onClick={(e) => e.stopPropagation()}>
+            
+            <div className="flex justify-between items-center px-6 pb-6 border-b border-gray-100">
+              <div>
+                <span className="font-black text-[#1e3a8a] uppercase text-lg tracking-tighter block">Menu SerClin</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{nomeLogado || 'Colaborador'}</span>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setIsMenuMobileOpen(false)} className="text-gray-400 -mr-2"><X size={26} /></Button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-1 text-left flex flex-col no-scrollbar">
+
+              {(isAdmin || isGestorSeguro) && (
+                <Button 
+                  variant="ghost" 
+                  className="justify-start gap-4 h-12 font-bold uppercase text-[11px] w-full" 
+                  onClick={() => { navigate('/sistema/usuarios'); setIsMenuMobileOpen(false); }}
+                >
+                  <User size={20} className="text-purple-600"/> Gerenciar Acesso
+                </Button>
+              )}
+              
+              {/* ATENDIMENTO */}
+              <div className="mb-2 px-2 mt-2">
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Atendimento</span>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-1 flex flex-col">
-                <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/pacientes'); setIsMenuMobileOpen(false); }}>
-                  <User size={20} className="text-blue-700"/> Prontuários
+              <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-xl font-bold uppercase text-[11px] text-blue-700" onClick={() => { navigate('/sistema/pacientes'); setIsMenuMobileOpen(false); }}>
+                <Users size={18} /> Pacientes / Prontuários
+              </Button>
+
+              <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-xl font-bold uppercase text-[11px] text-emerald-700 bg-emerald-50/50" onClick={() => { navigate('/sistema/encaminhamentos'); setIsMenuMobileOpen(false); }}>
+                <GraduationCap size={18} /> Triagem Unimeta
+              </Button>
+
+              {/* FINANCEIRO COMPLETO */}
+              {meuPerfil?.permissao_financeiro && (
+                <>
+                  <div className="mt-6 mb-2 px-2 border-t pt-4">
+                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Financeiro & Caixa</span>
+                  </div>
+                  <Button variant="ghost" className="w-full justify-start gap-4 text-emerald-600 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/planos'); setIsMenuMobileOpen(false); }}><Wallet size={18} /> Planos</Button>
+                  <Button variant="ghost" className="w-full justify-start gap-4 text-red-500 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/despesas'); setIsMenuMobileOpen(false); }}><Receipt size={18} /> Despesas</Button>
+                  <Button variant="ghost" className="w-full justify-start gap-4 text-blue-600 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/repasses'); setIsMenuMobileOpen(false); }}><Calculator size={18} /> Repasses</Button>
+                  <Button variant="ghost" className="w-full justify-start gap-4 text-indigo-600 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/fechamento'); setIsMenuMobileOpen(false); }}><Scale size={18} /> Caixa</Button>
+                </>
+              )}
+
+              {/* GESTÃO E ACESSOS */}
+              <div className="mt-6 mb-2 px-2 border-t pt-4">
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Gestão</span>
+              </div>
+
+              <Button variant="ghost" className="w-full justify-start gap-4 text-orange-500 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/relatorios'); setIsMenuMobileOpen(false); }}>
+                <Search size={18} /> Relatórios
+              </Button>
+              
+              {/* 7. GERENCIAR EQUIPE UNIFICADO */}
+              {(isAdmin || isGestorSeguro) && (
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start gap-4 h-12 font-bold uppercase text-[11px]" 
+                  onClick={() => { navigate('/sistema/permissoes'); setIsMenuMobileOpen(false); }}
+                >
+                  <User size={20} className="text-purple-600"/> Gerenciar Equipe
                 </Button>
-                
-                {meuPerfil?.permissao_financeiro && (
-                  <>
-                    <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/planos'); setIsMenuMobileOpen(false); }}>
-                      <Wallet size={20} className="text-emerald-600"/> Planos
-                    </Button>
-                    <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/despesas'); setIsMenuMobileOpen(false); }}>
-                      <Receipt size={20} className="text-red-600"/> Despesas
-                    </Button>
-                    <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/repasses'); setIsMenuMobileOpen(false); }}>
-                      <Calculator size={20} className="text-blue-600"/> Repasses
-                    </Button>
-                    <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/fechamento'); setIsMenuMobileOpen(false); }}>
-                      <Scale size={20} className="text-indigo-600"/> Caixa
-                    </Button>
-                  </>
-                )}
+              )}
 
-                <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/relatorios'); setIsMenuMobileOpen(false); }}>
-                  <Search size={20} className="text-amber-600"/> Relatórios
+              {/* SAIR */}
+              <div className="mt-auto pt-6 border-t pb-8">
+                <Button
+                  onClick={async () => {
+                    try {
+                      await supabase.auth.signOut();
+                    } catch (e) {
+                      console.error(e);
+                    } finally {
+                      window.location.href = "https://institutoserclin.vercel.app";
+                    }
+                  }}
+                  className="w-full bg-red-50 hover:bg-red-100 text-red-600 border-none font-black uppercase tracking-widest h-14 rounded-2xl flex items-center justify-center gap-3"
+                >
+                  <LogOut size={18} /> Sair do Sistema
                 </Button>
-
-                {/* BOTÃO CONFIRMAR NA GAVETA */}
-                {meuPerfil?.permissao_confirmacao_amanha && (
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start gap-4 text-emerald-700 h-12 rounded-xl font-bold uppercase text-[11px] bg-emerald-50/50" 
-                    onClick={() => { setIsMenuMobileOpen(false); setIsConfirmacaoAmanhaOpen(true); }}
-                  >
-                    <Send size={18} /> 
-                    {new Date().getDay() === 5 ? 'Confirmar Segunda' : 'Confirmar Amanhã'}
-                    {agendamentosAmanha.length > 0 && (
-                      <span className="ml-auto bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px]">
-                        {agendamentosAmanha.length}
-                      </span>
-                    )}
-                  </Button>
-                )}  
-
-                {(isAdmin || isGestorSeguro) && (
-                  <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/usuarios'); setIsMenuMobileOpen(false); }}>
-                    <User size={20} className="text-purple-600"/> Gerenciar Acesso
-                  </Button>
-                )}
-                
-                <div className="mt-auto border-t pt-4">
-                  <Button variant="ghost" className="w-full justify-start gap-4 h-12 font-bold uppercase text-[11px] text-red-500" onClick={() => { supabase.auth.signOut(); navigate('/login'); }}>
-                    <LogOut size={20} /> Sair do Sistema
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
-        )}
-      </header>
-
+        </div>
+      )}
+      
       {/* ÁREA PRINCIPAL DO DASHBOARD */}
-      <main className="flex-1 p-2 md:p-4 overflow-hidden text-left flex flex-col relative mt-2">
-        {isGestorSeguro && (
-          <div className="mb-3 flex justify-end z-10 shrink-0">
-            <Select value={filtroProfissional} onValueChange={setFiltroProfissional}>
-              <SelectTrigger className="bg-white border border-gray-100 text-[#0a2d54] font-black h-11 text-xs rounded-2xl px-4 shadow-sm w-full md:w-[250px] cursor-pointer">
-                <div className="flex items-center gap-2 uppercase tracking-widest">
-                  <Filter size={16} className="text-emerald-500" />
-                  <SelectValue placeholder="Filtrar Agenda" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="geral">Visão Geral (Todos)</SelectItem>
-                {equipe.map((p: any) => (
-                  <SelectItem key={p.id} value={p.nome}>
-                    {p.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+      {!isEstacio ? (
+        <main className="flex-1 p-2 md:p-4 overflow-hidden text-left flex flex-col relative">
+          {isGestorSeguro && (
+            <div className="mb-3 flex justify-end z-10 shrink-0">
+              <Select value={filtroProfissional} onValueChange={setFiltroProfissional}>
+                <SelectTrigger className="bg-white border border-gray-100 text-[#1e3a8a] font-black h-11 text-xs rounded-2xl px-4 shadow-sm w-full md:w-[250px]">
+                  <div className="flex items-center gap-2 uppercase tracking-widest">
+                    <Filter size={16} className="text-emerald-500" />
+                    <SelectValue placeholder="Filtrar Agenda" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="geral">Visão Geral (Todos)</SelectItem>
+                  {equipe.map((p: any) => (
+                    <SelectItem key={p.id} value={p.nome}>
+                      {p.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
-         <Card className="flex-1 min-h-0 border-none shadow-sm bg-white rounded-[2rem] overflow-hidden flex flex-col">
-          <CardContent className="p-0 flex-1 min-h-0 flex flex-col overflow-hidden">
-            <Calendar 
-              style={{ height: '100%', width: '100%' }}
-              localizer={localizer} culture='pt-BR' messages={mensagensPortugues}
-              events={filtroProfissional === "geral" ? events : events.filter((e: any) => e.original?.profissional_nome === filtroProfissional)} 
-              view={view} onView={setViewCalendar} date={date} onNavigate={setDate} 
-              views={['day', 'week', 'month', 'agenda']} 
-              min={minTime} 
-              max={maxTime} 
-              components={{ event: EventoCustomizado }} 
-              eventPropGetter={(event: any) => ({ style: { backgroundColor: event.color, color: 'white', border: 'none', borderRadius: '6px', opacity: event.original?.status === 'Falta' ? 0.5 : 1 } })}
-              onSelectEvent={(e) => { 
-                const evt = e.original; 
-                setEventoSelecionadoId(evt.id); 
-                setBuscaPaciente(evt.paciente_nome); 
-                setForm({ ...form, profissional: evt.profissional_nome, paciente_nome: evt.paciente_nome, paciente_id: evt.paciente_id, telefone: aplicarMascaraTelefone(evt.paciente_telefone || ''), sala: evt.sala_id?.toString() || '1', inicio: format(new Date(evt.data_inicio), "yyyy-MM-dd'T'HH:mm"), status: evt.status === 'Presenca' ? 'Presença' : (evt.status || 'Agendado'), duracao: evt.duracao || '40', assinatura_url: evt.assinatura_url || null, valor_atendimento: aplicarMascaraMoeda(evt.valor_atendimento?.toString() || "0"), forma_pagamento: evt.forma_pagamento || "Pix" }); 
+          <Card className="flex-1 border-none shadow-sm bg-white rounded-[2rem] overflow-hidden flex flex-col">
+            <CardContent className="p-0 flex-1 min-h-[500px]">
+              <Calendar 
+                style={{ height: '100%', minHeight: '65vh' }}
+                localizer={localizer} culture='pt-BR' messages={mensagensPortugues}
+                events={filtroProfissional === "geral" ? events : events.filter((e: any) => e.original?.profissional_nome === filtroProfissional)} 
+                view={view} onView={setView} date={date} onNavigate={setDate} 
+                views={['day', 'week', 'month', 'agenda']} 
+                min={minTime} 
+                max={maxTime} 
+                components={{ event: EventoCustomizado }} 
+                eventPropGetter={(event: any) => ({ style: { backgroundColor: event.color, color: 'white', border: 'none', borderRadius: '6px', opacity: event.original?.status === 'Falta' ? 0.5 : 1 } })}
+                onSelectEvent={(e) => { 
+                  const evt = e.original; 
+                  setEventoSelecionadoId(evt.id); 
+                  setBuscaPaciente(evt.paciente_nome); 
+                  setForm({ ...form, profissional: evt.profissional_nome, paciente_nome: evt.paciente_nome, paciente_id: evt.paciente_id, telefone: aplicarMascaraTelefone(evt.paciente_telefone || ''), sala: evt.sala_id?.toString() || '1', inicio: format(new Date(evt.data_inicio), "yyyy-MM-dd'T'HH:mm"), status: evt.status === 'Presenca' ? 'Presença' : (evt.status || 'Agendado'), duracao: evt.original?.duracao || '40', assinatura_url: evt.assinatura_url || null, valor_atendimento: aplicarMascaraMoeda(evt.valor_atendimento?.toString() || "0"), forma_pagamento: evt.forma_pagamento || "Pix" }); 
+                  setIsAgendamentoOpen(true); 
+                }} 
+              />
+            </CardContent>
+          </Card>
+
+          {meuPerfil?.permissao_agendar && (
+            <button 
+              onClick={() => { 
+                setEventoSelecionadoId(null); 
+                setBuscaPaciente(""); 
+                setForm({ ...form, profissional: isGestorSeguro ? '' : nomeLogado, paciente_id: null, status: 'Agendado', duracao: '40', assinatura_url: null, inicio: format(new Date(), "yyyy-MM-dd'T'HH:mm"), telefone: "", valor_atendimento: "0,00", forma_pagamento: "Pix" }); 
                 setIsAgendamentoOpen(true); 
               }} 
-            />
-          </CardContent>
-        </Card>
-
-        {meuPerfil?.permissao_agendar && (
-          <button 
-            onClick={() => { 
-              setEventoSelecionadoId(null); 
-              setBuscaPaciente(""); 
-              setForm({ ...form, profissional: isGestorSeguro ? '' : nomeLogado, paciente_id: null, status: 'Agendado', duracao: '40', assinatura_url: null, inicio: format(new Date(), "yyyy-MM-dd'T'HH:mm"), telefone: "", valor_atendimento: "0,00", forma_pagamento: "Pix" }); 
-              setIsAgendamentoOpen(true); 
-            }} 
-            className="md:hidden fixed bottom-6 right-6 z-[45] bg-blue-600 hover:bg-blue-700 text-white rounded-full h-14 px-6 flex items-center justify-center shadow-[0_8px_30px_rgb(37,99,235,0.4)] active:scale-95 transition-transform cursor-pointer border-none"
-          >
-            <Plus size={20} className="mr-1.5" />
-            <span className="font-black text-[13px] uppercase tracking-widest">Agendar</span>
-          </button>
-        )}
-      </main>
+              className="md:hidden fixed bottom-6 right-6 z-[45] bg-blue-600 hover:bg-blue-700 text-white rounded-full h-14 px-6 flex items-center justify-center shadow-[0_8px_30px_rgb(37,99,235,0.4)] active:scale-95 transition-transform"
+            >
+              <Plus size={20} className="mr-1.5" />
+              <span className="font-black text-[13px] uppercase tracking-widest">Agendar</span>
+            </button>
+          )}
+        </main>
+      ) : (
+        /* TELA EXCLUSIVA PARA QUEM LOGA COM E-MAIL DA ESTÁCIO */
+        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <GraduationCap size={64} className="text-emerald-500 mb-4 opacity-50" />
+          <h2 className="text-2xl font-black text-[#1e3a8a] uppercase tracking-tighter mb-2">Portal Institucional</h2>
+          <p className="text-sm font-bold text-gray-500 mb-8 max-w-md">
+            Bem-vindo (a)! O seu acesso é exclusivo para emissão de encaminhamentos para a clínica-escola.
+          </p>
+          <Button onClick={() => navigate('/sistema/encaminhamentos')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-black h-14 px-8 rounded-full uppercase tracking-widest text-xs shadow-lg">
+            <FileText size={16} className="mr-2" />
+            Acessar Triagem Unimeta
+          </Button>
+        </main>
+      )}
 
       {/* MODAL DE CONFIRMAÇÃO DE AMANHÃ */}
       {isConfirmacaoAmanhaOpen && (
@@ -832,26 +846,26 @@ export function Dashboard({ setView }: DashboardProps) {
           <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-[650px] border border-gray-100 overflow-hidden">
             <div className="p-8 border-b flex justify-between items-center bg-white text-left">
               <div>
-                <h3 className="font-black uppercase text-xl tracking-tighter text-[#0a2d54]">Lista de Confirmação</h3>
-                <p className="text-[12px] font-bold text-emerald-600 uppercase flex items-center gap-2 mt-1">
+                <h3 className="font-black uppercase text-xl tracking-tighter text-[#1e3a8a]">Lista de Confirmação</h3>
+                <p className="text-[12px] font-bold text-emerald-600 uppercase flex items-center gap-2">
                   <CalendarIcon size={14}/> {format(addDays(new Date(), 1), "EEEE, dd 'de' MMMM", { locale: ptBR })}
                 </p>
               </div>
-              <button onClick={() => setIsConfirmacaoAmanhaOpen(false)} className="bg-gray-100 p-2 rounded-full text-gray-400 hover:text-red-500 transition-colors cursor-pointer border-none">
+              <button onClick={() => setIsConfirmacaoAmanhaOpen(false)} className="bg-gray-100 p-2 rounded-full text-gray-400 hover:text-red-500 transition-colors">
                 <X size={24}/>
               </button>
             </div>
             <div className="p-4 max-h-[60vh] overflow-y-auto bg-gray-50/50 space-y-3 text-left">
               {agendamentosAmanha.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-2xl p-6">
-                  <p className="text-gray-400 font-bold uppercase text-xs">Nenhum agendamento para amanhã.</p>
+                <div className="text-center py-20">
+                  <p className="text-gray-400 font-bold uppercase text-xs text-left">Nenhum agendamento para amanhã.</p>
                 </div>
               ) : (
                 agendamentosAmanha.map((ag: any, idx: number) => (
                   <div key={idx} className="flex items-center justify-between p-5 bg-white rounded-3xl border border-gray-100 shadow-sm group">
                     <div className="flex items-center gap-5 text-left">
                       <div className="h-14 w-20 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100">
-                        <span className="font-black text-[#0a2d54]">{format(new Date(ag.data_inicio), "HH:mm")}</span>
+                        <span className="font-black text-[#1e3a8a]">{format(new Date(ag.data_inicio), "HH:mm")}</span>
                       </div>
                       <div className="flex flex-col text-left">
                         <span className="font-black text-[15px] uppercase text-gray-800 leading-tight">{ag.paciente_nome}</span>
@@ -861,7 +875,7 @@ export function Dashboard({ setView }: DashboardProps) {
                         </div>
                       </div>
                     </div>
-                    <Button onClick={() => enviarWhatsApp(ag.paciente_nome, ag.paciente_telefone, ag.profissional_nome, ag.data_inicio)} className="bg-emerald-500 text-white rounded-2xl h-14 px-6 flex items-center gap-3 shadow-lg transition-all border-none cursor-pointer">
+                    <Button onClick={() => enviarWhatsApp(ag.paciente_nome, ag.paciente_telefone, ag.profissional_nome, ag.data_inicio)} className="bg-emerald-500 text-white rounded-2xl h-14 px-6 flex items-center gap-3 shadow-lg transition-all">
                       <MessageCircle size={20} />
                       <span className="font-black uppercase text-[11px] hidden sm:block">Confirmar</span>
                     </Button>
@@ -878,8 +892,8 @@ export function Dashboard({ setView }: DashboardProps) {
         <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-0 md:p-2 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && setIsAgendamentoOpen(false)}>
           <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-[440px] h-full md:h-auto md:max-h-[95vh] flex flex-col overflow-hidden border border-gray-100">
             <div className="p-5 border-b flex justify-between items-center bg-white text-left shrink-0">
-              <h3 className="font-black uppercase text-[15px] tracking-widest text-[#0a2d54]">{eventoSelecionadoId ? 'Editar' : 'Novo'} Agendamento</h3>
-              <button type="button" onClick={() => setIsAgendamentoOpen(false)} className="text-gray-400 hover:text-red-500 transition-colors p-1 cursor-pointer border-none bg-transparent">
+              <h3 className="font-black uppercase text-[15px] tracking-widest text-[#1e3a8a]">{eventoSelecionadoId ? 'Editar' : 'Novo'} Agendamento</h3>
+              <button onClick={() => setIsAgendamentoOpen(false)} className="text-gray-400 hover:text-red-500 transition-colors p-1">
                 <X size={24}/>
               </button>
             </div>
@@ -887,7 +901,7 @@ export function Dashboard({ setView }: DashboardProps) {
             <form onSubmit={handleSalvarAgendamento} className="p-6 space-y-4 text-left overflow-y-auto flex-1 custom-scrollbar">
               
               {eventoSelecionadoId && (
-                <Button type="button" onClick={() => navigate(`/sistema/pacientes/${form.paciente_id}`)} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-black h-12 rounded-xl flex items-center justify-center gap-2 uppercase text-[10px] shadow-md mb-2 transition-all border-none cursor-pointer">
+                <Button type="button" onClick={() => navigate(`/sistema/pacientes/${form.paciente_id}`)} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-black h-12 rounded-xl flex items-center justify-center gap-2 uppercase text-[10px] shadow-md mb-2 transition-all">
                   <FileText size={18} /> Acessar Prontuário do Paciente
                 </Button>
               )}
@@ -943,7 +957,7 @@ export function Dashboard({ setView }: DashboardProps) {
                   {pacientesSugeridos.length > 0 && (
                     <div className="absolute z-[110] w-full bg-white border shadow-xl rounded-xl mt-1 overflow-hidden">
                       {pacientesSugeridos.map((p: any) => (
-                        <button key={p.id} type="button" className="w-full text-left p-3 hover:bg-blue-50 border-b flex flex-col cursor-pointer border-none" onClick={() => { setForm({ ...form, paciente_nome: p.nome, paciente_id: p.id, telefone: aplicarMascaraTelefone(p.telefone || '') }); setBuscaPaciente(p.nome); setPacientesSugeridos([]); }}>
+                        <button key={p.id} type="button" className="w-full text-left p-3 hover:bg-blue-50 border-b flex flex-col" onClick={() => { setForm({ ...form, paciente_nome: p.nome, paciente_id: p.id, telefone: aplicarMascaraTelefone(p.telefone || '') }); setBuscaPaciente(p.nome); setPacientesSugeridos([]); }}>
                           <span className="font-bold text-sm uppercase text-gray-700">{p.nome}</span>
                         </button>
                       ))}
@@ -992,7 +1006,7 @@ export function Dashboard({ setView }: DashboardProps) {
                   {form.assinatura_url ? (
                     <div className="group relative w-full h-full flex flex-col items-center justify-center bg-gray-50 p-2">
                       <img src={form.assinatura_url} alt="Assinatura" className="max-h-[60px] object-contain" />
-                      <button type="button" onClick={() => setForm({ ...form, assinatura_url: null })} className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover:opacity-100 font-bold text-[9px] uppercase cursor-pointer border-none">Refazer</button>
+                      <button type="button" onClick={() => setForm({ ...form, assinatura_url: null })} className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover:opacity-100 font-bold text-[9px] uppercase">Refazer</button>
                     </div>
                   ) : (
                     <SignatureCanvas ref={sigCanvas} penColor='black' canvasProps={{width: 400, height: 80, className: 'sigCanvas w-full h-full'}} />
@@ -1002,23 +1016,23 @@ export function Dashboard({ setView }: DashboardProps) {
 
               <div className="pt-4 flex flex-col gap-2 shrink-0 pb-8">
                 {form.telefone && (
-                  <Button type="button" onClick={() => enviarWhatsApp(form.paciente_nome, form.telefone, form.profissional, form.inicio)} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black h-11 rounded-xl flex items-center justify-center gap-2 uppercase text-[10px] shadow-md transition-all border-none cursor-pointer">
+                  <Button type="button" onClick={() => enviarWhatsApp(form.paciente_nome, form.telefone, form.profissional, form.inicio)} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black h-11 rounded-xl flex items-center justify-center gap-2 uppercase text-[10px] shadow-md transition-all">
                     <MessageCircle size={16} /> Confirmar WhatsApp
                   </Button>
                 )}
                 {eventoSelecionadoId && (
-                  <Button type="button" onClick={gerarComprovante} className="w-full bg-[#0a2d54] hover:bg-[#bfa571] text-white font-black h-11 rounded-xl flex items-center justify-center gap-2 uppercase text-[10px] shadow-md transition-all border-none cursor-pointer">
+                  <Button type="button" onClick={gerarComprovante} className="w-full bg-[#1e3a8a] hover:bg-black text-white font-black h-11 rounded-xl flex items-center justify-center gap-2 uppercase text-[10px] shadow-md transition-all">
                     <FileText size={16} /> Gerar Atestado
                   </Button>
                 )}
                 <div className="flex gap-2">
                   {eventoSelecionadoId && (
-                    <Button type="button" variant="outline" onClick={handleExcluirAgendamento} className="px-5 border-red-200 text-red-500 hover:bg-red-50 h-12 rounded-2xl transition-all cursor-pointer">
+                    <Button type="button" variant="outline" onClick={handleExcluirAgendamento} className="px-5 border-red-200 text-red-500 hover:bg-red-50 h-12 rounded-2xl transition-all">
                       <Trash2 size={20} />
                     </Button>
                   )}
                   {meuPerfil?.permissao_agendar && (
-                    <Button type="submit" disabled={loading} className="flex-1 bg-blue-600 hover:bg-black text-white font-black h-12 rounded-2xl shadow-xl uppercase text-xs transition-all border-none cursor-pointer">
+                    <Button type="submit" disabled={loading} className="flex-1 bg-blue-600 hover:bg-black text-white font-black h-12 rounded-2xl shadow-xl uppercase text-xs transition-all">
                       {loading ? <RefreshCw className="animate-spin" /> : 'Confirmar Agenda'}
                     </Button>
                   )}
