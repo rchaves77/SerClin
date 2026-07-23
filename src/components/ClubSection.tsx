@@ -1,87 +1,153 @@
-import { Check, Star, ShieldCheck, Sparkles, CreditCard, Users, ArrowUpRight } from "lucide-react";
+import { ShieldCheck, ArrowRight, CheckCircle2, Sparkles, HelpCircle, Users, Calendar, ShieldAlert } from "lucide-react";
 
 export function ClubSection() {
-  const benefits = [
-    {
-      icon: CreditCard,
-      title: "Mensalidade Reduzida",
-      desc: "Acesso a terapias e consultas com valores altamente reduzidos, garantindo a continuidade do seu cuidado sem pesar no orçamento.",
-    },
-    {
-      icon: Users,
-      title: "Suporte Familiar Amplo",
-      desc: "Adicione seus dependentes diretos (filhos, cônjuge ou pais) sob uma única assinatura para cuidar de quem você mais ama.",
-    },
-    {
-      icon: Sparkles,
-      title: "Parceiros Conveniados",
-      desc: "Descontos exclusivos em farmácias, laboratórios de análises clínicas, exames de imagem e médicos parceiros na região.",
-    },
-    {
-      icon: ShieldCheck,
-      title: "Agendamento Prioritário",
-      desc: "Canal de atendimento exclusivo com prioridade na marcação de horários, reagendamentos e suporte contínuo da nossa central.",
-    },
-  ];
+  const handleAdesaoClub = () => {
+    window.open("https://invoice.infinitepay.io/plans/instituto-serclin/0HJPOIpqjg", "_blank");
+  };
+
+  const handleConsultarTabelaZap = () => {
+    const telefoneClinica = "5568992161717"; 
+    const mensagem = "Olá! Gostaria de consultar a tabela de valores exclusivos e condições especiais do Club SerClin.";
+    window.open(`https://wa.me/${telefoneClinica}?text=${encodeURIComponent(mensagem)}`, "_blank");
+  };
 
   return (
-    <section id="club-serclin" className="py-24 bg-white scroll-mt-24 text-left">
-      <div className="bg-[#0a2d54] rounded-[3.5rem] p-8 md:p-16 lg:p-20 text-white relative overflow-hidden shadow-2xl">
-        {/* Decorative background watermark */}
-        <div className="absolute -bottom-20 -left-10 text-[20rem] font-black text-white/[0.03] italic select-none pointer-events-none uppercase tracking-tighter">
-          CLUB
+    <section id="club" className="py-32 bg-primary text-white relative overflow-hidden rounded-[4rem] my-16 shadow-[0_40px_100px_-30px_rgba(5,7,10,0.5)]">
+      
+      {/* Grafismo de fundo */}
+      <div className="absolute -right-24 -bottom-24 text-[26rem] font-black text-white/[0.02] italic select-none pointer-events-none uppercase tracking-tighter">
+        SERCLIN
+      </div>
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[150px] pointer-events-none" />
+
+      {/* Ajustado o container geral para max-w-7xl expandindo a área útil de visualização */}
+      <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 items-center relative z-10 px-6 md:px-12">
+        
+        {/* LADO ESQUERDO: Chamada Institucional Premium */}
+        <div className="lg:col-span-4 space-y-8 text-left">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="h-px w-8 bg-secondary" />
+              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-secondary flex items-center gap-2">
+                <Sparkles size={12} /> PROTOCOLO DE BENEFÍCIOS
+              </span>
+            </div>
+            
+            <h2 className="text-6xl md:text-7xl font-black uppercase tracking-tighter italic leading-[0.8] text-white font-serif">
+              Club <br />
+              <span className="text-secondary not-italic font-sans">
+                SerClin
+              </span>
+            </h2>
+          </div>
+          
+          <div className="h-1 w-20 bg-secondary"></div>
+          
+          <p className="text-white/60 text-lg md:text-xl font-light leading-relaxed">
+            Acolhimento humanizado e estrutura particular ao alcance da sua família em Rio Branco por um modelo de assinatura mensal recorrente.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-          {/* Left Hero Box */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="inline-flex items-center gap-2 bg-[#bfa571]/20 border border-[#bfa571]/30 px-4 py-1.5 rounded-full text-[#dfca9e] text-xs font-black uppercase tracking-widest font-mono">
-              <Star className="w-3.5 h-3.5 fill-[#dfca9e]" /> Clube de Benefícios
+        {/* LADO DIREITO: O Quadro Maior de Altíssima Legibilidade */}
+        <div className="lg:col-span-8 w-full">
+          <div className="bg-white rounded-[3.5rem] p-8 md:p-14 border border-white/10 shadow-2xl flex flex-col md:flex-row justify-between gap-12 relative overflow-hidden text-left text-slate-900">
+            
+            {/* Bloco de Benefícios com espaçamento expandido */}
+            <div className="flex-1 space-y-10 relative z-10 flex flex-col justify-between">
+              <div className="space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-secondary block">
+                  Vantagens Inclusas
+                </span>
+                <h4 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-primary font-serif italic">
+                  O que você <span className="font-sans font-light text-slate-500 not-italic lowercase">recebe</span>
+                </h4>
+              </div>
+
+              {/* Lista estruturada de forma mais espaçada e com textos maiores */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                <div className="flex items-start gap-4">
+                  <Users className="text-primary mt-1 shrink-0" size={24} />
+                  <div className="space-y-1">
+                    <h5 className="font-black text-sm uppercase text-gray-800 tracking-tight">Titular + 1 Dependente</h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                        <li>Cobertura direta inclusa para cônjuge ou filho sem cobrança adicional.</li>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <Calendar className="text-emerald-600 mt-1 shrink-0" size={24} />
+                  <div className="space-y-1">
+                    <h5 className="font-black text-sm uppercase text-gray-800 tracking-tight">04 Sessões Mensais</h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                        <li>Atendimentos individuais de psicoterapia de 40 minutos por mês.</li>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <CheckCircle2 className="text-blue-600 mt-1 shrink-0" size={24} />
+                  <div className="space-y-1">
+                    <h5 className="font-black text-sm uppercase text-gray-800 tracking-tight">Condições Exclusivas</h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed"> 
+                        <li>Acesso direto a valores exclusivos para Psiquiatria e Neuropsicologia.</li>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <ShieldAlert className="text-amber-500 mt-1 shrink-0" size={24} />
+                  <div className="space-y-1">
+                    <h5 className="font-black text-sm uppercase text-gray-800 tracking-tight">Regras Claras</h5>
+                    <ul className="text-xs text-slate-500 font-medium leading-relaxed space-y-1 list-disc list-inside">
+                      <li>Sessão de Acolhimento em até 48h</li>
+                      <li>30 dias de carência para terapias</li>
+                      <li>Liberação médica imediata</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="pt-4 border-t border-slate-100">
+                <button 
+                  onClick={handleConsultarTabelaZap}
+                  className="text-[11px] font-black uppercase tracking-widest text-blue-600 flex items-center gap-2 hover:text-primary transition-colors py-1"
+                >
+                  <HelpCircle size={16} className="text-emerald-500" /> Consultar Tabela de Valores via WhatsApp
+                </button>
+              </div>
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter italic leading-none font-serif">
-              Club <span className="font-light text-slate-300 not-italic font-sans lowercase">SerClin</span>
-            </h2>
-            <div className="h-1 w-20 bg-[#bfa571]"></div>
-            <p className="text-white/70 text-base font-light leading-relaxed font-sans">
-              Mais do que um convênio, um ecossistema completo de bem-estar. O Club Serclin foi desenhado para quem prioriza o autocuidado preventivo com previsibilidade financeira e atendimento de excelência.
-            </p>
-            <div className="pt-4 flex flex-wrap gap-4">
+
+            {/* Bloco Dinâmico de Preço Ampliado */}
+            <div className="w-full md:w-[260px] bg-slate-50 rounded-[2rem] p-8 flex flex-col justify-between text-center border border-slate-100 shrink-0 relative z-10">
+              <div className="space-y-4 my-auto">
+                <span className="bg-emerald-100 text-emerald-800 text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest block mx-auto w-max">
+                  RECORRÊNCIA
+                </span>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Assinatura</span>
+                  <div className="flex items-baseline justify-center text-primary">
+                    <span className="text-sm font-black opacity-60">R$</span>
+                    <span className="text-5xl font-black tracking-tighter">127,90</span>
+                    <span className="text-xs font-bold text-slate-400 ml-1">/mês</span>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-800 font-medium leading-relaxed px-1">
+                  Sem burocracia. Desconto mensal na função assinatura sem ocupar o limite total.
+                </p>
+              </div>
+
               <button
-                onClick={() => {
-                  const tel = "5568992161717";
-                  const msg = "Olá! Gostaria de mais informações sobre como funciona o Club Serclin e quais são os planos disponíveis.";
-                  window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, "_blank");
-                }}
-                className="bg-[#bfa571] hover:bg-[#9e814d] text-white font-black px-8 py-4 uppercase text-xs tracking-widest rounded-xl shadow-lg border-none cursor-pointer flex items-center gap-2 transition-all active:scale-95"
+                onClick={handleAdesaoClub}
+                className="w-full bg-[#1e3a8a] hover:bg-emerald-500 text-white font-black uppercase text-[11px] tracking-[0.2em] py-5 rounded-2xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 group mt-8"
               >
-                Aderir ao Clube <ArrowUpRight className="w-4 h-4" />
+                ASSINAR <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
               </button>
             </div>
-          </div>
 
-          {/* Right Cards Box */}
-          <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {benefits.map((b, i) => {
-              const Icon = b.icon;
-              return (
-                <div
-                  key={i}
-                  className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-[#bfa571]/20 text-[#dfca9e] flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-black text-sm uppercase tracking-wider text-[#dfca9e] mb-2 font-serif">
-                    {b.title}
-                  </h3>
-                  <p className="text-xs font-light text-white/60 leading-relaxed font-sans">
-                    {b.desc}
-                  </p>
-                </div>
-              );
-            })}
           </div>
         </div>
+
       </div>
     </section>
   );

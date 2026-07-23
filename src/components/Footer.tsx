@@ -1,121 +1,120 @@
-import { Phone, Mail, MapPin, Clock, ShieldCheck } from "lucide-react";
-import SerclinLogo from "./SerclinLogo";
+import { Instagram, MapPin, Mail, Phone, MessageCircle, ShieldCheck, Award } from "lucide-react";
 
-interface FooterProps {
-  setView: (view: string) => void;
-}
-
-export default function Footer({ setView }: FooterProps) {
+export function Footer() {
   return (
-    <footer className="bg-[#041222] text-slate-400 border-t border-[#0a2d54]/30" id="main-footer">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
-          {/* Brand Col */}
-          <div className="md:col-span-1 space-y-4">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView("home")}>
-              <SerclinLogo variant="horizontal" isDarkBg={true} />
-            </div>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Cuidado integral, acolhimento humano e excelência médica. Nosso foco é promover sua saúde de forma integrada e personalizada.
+    <footer id="contato" className="bg-primary text-white pt-24 pb-12 border-t border-white/10 relative overflow-hidden">
+      
+      {/* 1. Marca d'água de Prestígio (Sutil e Coesa) */}
+      <div className="absolute top-0 right-0 text-[18rem] font-black text-white/[0.02] italic pointer-events-none select-none tracking-tighter uppercase">
+        SerClin
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
+          
+          {/* Coluna 1: Identidade Signature */}
+          <div className="space-y-8">
+            <h3 className="font-serif text-3xl font-black tracking-tighter italic text-secondary uppercase leading-[0.8]">
+              Instituto <br /> <span className="not-italic text-white font-sans tracking-tight uppercase text-2xl">SerClin</span>
+            </h3>
+            <p className="text-white/60 leading-relaxed text-sm font-medium italic max-w-xs font-sans">
+              Onde a excelência clínica e o acolhimento humano de elite convergem para o desenvolvimento pleno.
             </p>
-            <div className="flex items-center gap-2 text-xs text-slate-400 bg-[#0a2d54]/25 p-3 rounded-xl border border-[#0a2d54]/30">
-              <ShieldCheck className="w-4 h-4 text-[#bfa571] flex-shrink-0" />
-              <span>Ambiente clínico regulamentado e higienizado.</span>
+            <div className="flex gap-4">
+              <a 
+                href="https://www.instagram.com/institutoserclin/" 
+                target="_blank" 
+                className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-primary transition-all border border-white/10 group shadow-2xl"
+              >
+                <Instagram className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              </a>
+              <a 
+                href="https://wa.me/5568992161717" 
+                target="_blank" 
+                className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-primary transition-all border border-white/10 group shadow-2xl"
+              >
+                <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              </a>
             </div>
           </div>
 
-          {/* Specialties Quick Links */}
+          {/* Coluna 2: Navegação (Sans Black para Autoridade) */}
           <div>
-            <h3 className="text-sm font-semibold tracking-wider text-slate-200 uppercase mb-4">Especialidades</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <button onClick={() => setView("home")} className="hover:text-[#bfa571] transition-colors cursor-pointer border-none bg-none text-left">
-                  Psicologia Clínica
-                </button>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.5em] mb-10 text-secondary">Navegação</h4>
+            <ul className="space-y-5 text-[12px] font-bold uppercase tracking-[0.2em] font-sans">
+              <li><a href="#" className="text-white/40 hover:text-white transition-colors block">Experience Início</a></li>
+              <li><a href="#sobre" className="text-white/40 hover:text-white transition-colors block">O Instituto</a></li>
+              <li><a href="#servicos" className="text-white/40 hover:text-white transition-colors block">Especialidades</a></li>
+              <li><a href="#planos" className="text-white/40 hover:text-white transition-colors block">Investimento</a></li>
+            </ul>
+          </div>
+
+          {/* Coluna 3: Concierge (Foco em Precisão Visual) */}
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.5em] mb-10 text-secondary">Concierge</h4>
+            <ul className="space-y-8 text-[12px] font-bold uppercase tracking-widest font-sans">
+              <li className="flex items-start gap-4 group text-white/50 transition-colors hover:text-white">
+                <MapPin className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
+                <a 
+                  href="https://www.google.com/maps/search/?api=1&query=Rua+Sorocaba+140+Doca+Furtado+Rio+Branco+AC" 
+                  target="_blank" 
+                  className="leading-relaxed tracking-[0.1em]"
+                >
+                  Rua Sorocaba, 140<br />
+                  Doca Furtado, Rio Branco - AC
+                </a>
               </li>
-              <li>
-                <button onClick={() => setView("home")} className="hover:text-[#bfa571] transition-colors cursor-pointer border-none bg-none text-left">
-                  Psiquiatria Integrada
-                </button>
+              <li className="flex items-center gap-4 group text-white/50 transition-colors hover:text-white">
+                <Phone className="w-5 h-5 text-secondary shrink-0" />
+                <a href="tel:+5568992161717" className="tracking-tighter text-base font-black">
+                  (68) 99216-1717
+                </a>
               </li>
-              <li>
-                <button onClick={() => setView("home")} className="hover:text-[#bfa571] transition-colors cursor-pointer border-none bg-none text-left">
-                  Nutrição Funcional
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setView("home")} className="hover:text-[#bfa571] transition-colors cursor-pointer border-none bg-none text-left">
-                  Fisioterapia & RPG
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setView("home")} className="hover:text-[#bfa571] transition-colors cursor-pointer border-none bg-none text-left">
-                  Fonoaudiologia
-                </button>
+              <li className="flex items-center gap-4 group text-white/50 transition-colors hover:text-white">
+                <Mail className="w-5 h-5 text-secondary shrink-0" />
+                <a href="mailto:institutoserclin@gmail.com" className="lowercase italic font-medium tracking-normal">
+                  institutoserclin@gmail.com
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* Quick Access */}
-          <div>
-            <h3 className="text-sm font-semibold tracking-wider text-slate-200 uppercase mb-4">Acesso Rápido</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <button onClick={() => setView("home")} className="hover:text-[#bfa571] transition-colors cursor-pointer border-none bg-none text-left">
-                  Especialistas do Corpo Clínico
-                </button>
+          {/* Coluna 4: Disponibilidade (Tabela de Elite) */}
+          <div className="space-y-8">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.5em] mb-10 text-secondary">Disponibilidade</h4>
+            <ul className="space-y-5 text-[11px] font-black uppercase tracking-widest font-sans">
+              <li className="flex justify-between border-b border-white/5 pb-3">
+                <span className="text-white/80 italic font-medium">Segunda - Sexta</span>
+                <span className="text-white/80">08:00 — 18:00</span>
               </li>
-              <li>
-                <button onClick={() => setView("booking")} className="hover:text-[#bfa571] transition-colors font-medium text-[#bfa571] cursor-pointer border-none bg-none text-left">
-                  Agendar Consulta
-                </button>
+              <li className="flex justify-between border-b border-white/5 pb-3">
+                <span className="text-white/80 italic font-medium">Sábado</span>
+                <span className="text-white/80">08:00 — 12:00</span>
               </li>
-              <li>
-                <button onClick={() => setView("checkin")} className="hover:text-[#bfa571] transition-colors cursor-pointer border-none bg-none text-left">
-                  Área do Paciente
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setView("chat")} className="hover:text-[#bfa571] transition-colors cursor-pointer border-none bg-none text-left">
-                  Assistente de Sintomas (IA)
-                </button>
+              <li className="flex justify-between border-b border-white/5 pb-3">
+                <span className="text-white/80 italic font-medium">Domingo</span>
+                <span className="text-secondary font-black italic">Private Access</span>
               </li>
             </ul>
-          </div>
-
-          {/* Contact Col */}
-          <div className="space-y-3 font-normal text-sm">
-            <h3 className="text-sm font-semibold tracking-wider text-slate-200 uppercase mb-4">Contato</h3>
-            <div className="flex items-start gap-2.5">
-              <MapPin className="w-5 h-5 text-[#bfa571] flex-shrink-0 mt-0.5" />
-              <span>Av. Paulista, 1500 - Bela Vista, São Paulo - SP, 01310-200</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <Phone className="w-4 h-4 text-[#bfa571]" />
-              <span>(11) 3241-9988 / (11) 98877-6655</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <Mail className="w-4 h-4 text-[#bfa571]" />
-              <span>contato@institutoserclin.com.br</span>
-            </div>
-            <div className="flex items-start gap-2.5 pt-1">
-              <Clock className="w-4 h-4 text-[#bfa571] flex-shrink-0 mt-0.5" />
-              <div>
-                <p>Segunda a Sexta: 07:00 as 21:00</p>
-                <p>Sábado: 08:00 as 14:30</p>
-              </div>
+            <div className="pt-4 flex items-center gap-2 text-[9px] font-black text-white/60 uppercase tracking-[0.3em]">
+              <ShieldCheck size={14} className="text-secondary/40" /> Protocolos Signature
             </div>
           </div>
         </div>
 
-        {/* Divider */}
-        <hr className="border-[#0a2d54]/20 my-8" />
-
-        {/* Bottom Banner */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-mono">
-          <p>© {new Date().getFullYear()} Instituto SerClin S/A. Todos os direitos reservados.</p>
-          <div className="flex gap-4">
-            <span>Diretor Técnico Médico: Dr. Mateus Silva CRM-SP 142.509</span>
+        {/* 2. Rodapé Final (Minimalismo de Luxo) */}
+        <div className="border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center gap-8 font-sans">
+          <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em]">
+            © {new Date().getFullYear()} Instituto SerClin Signature. All rights reserved.
+          </p>
+          <div className="flex items-center gap-8 opacity-40">
+             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em]">
+                <Award size={16} className="text-secondary" /> Padrão de Excelência
+             </div>
+             <div className="h-4 w-px bg-white/20" />
+             <div className="text-[10px] font-black uppercase tracking-[0.2em]">
+                Rio Branco - AC
+             </div>
           </div>
         </div>
       </div>

@@ -1,231 +1,144 @@
-import { useState, useEffect } from "react";
-import Navbar from "./components/Navbar";
-import Home from "./components/Home";
-import Booking, { ScheduledAppointment } from "./components/Booking";
-import { Checkin } from "./components/Checkin";
-import { Acessos } from "./components/Acessos";
-import { CadastroUsuario } from "./components/CadastroUsuario";
-import AIChat from "./components/AIChat";
-import Footer from "./components/Footer";
+import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { supabase } from './lib/supabase';
+import FormularioAlerta from './pages/corporativo/FormularioAlerta';
 
-// Clinical Management Systems
-import { Dashboard } from "./components/Dashboard";
-import { Despesas } from "./components/Despesas";
-import { Fechamento } from "./components/Fechamento";
-import { GestaoPermissoes } from "./components/GestaoPermissoes";
-import { Horarios } from "./components/Horarios";
-import { Pacientes } from "./components/Pacientes";
-import { Login } from "./components/Login";
-import { Prontuario } from "./components/Prontuario";
-import { Planos } from "./components/Planos";
-import { Relatorios } from "./components/Relatorios";
-import { RedefinirSenha } from "./components/RedefinirSenha";
-import Obrigado from "./components/Obrigado";
-import { Repasses } from "./components/Repasses";
-import { Validar } from "./components/Validar";
+// --- IMPORTAÇÃO DAS PÁGINAS ---
+import Home from './pages/Home';
+import { Login } from './pages/Login';
+import { Dashboard } from './pages/Dashboard';
+import { Pacientes } from './pages/Pacientes';
+import { CalculadoraTaxas } from "@/components/Taxas";
+import { Relatorios } from './pages/Relatorios';
+import { Checkin } from './pages/Checkin';
+import { Prontuario } from './pages/Prontuario';
+import { Validar } from './pages/Validar'; 
+import { Encaminhamentos } from './pages/Encaminhamentos';
 
-export default function App() {
-  const [view, setView] = useState<string>(() => {
-    const path = window.location.pathname;
-    if (path.startsWith("/validar/")) {
-      return "validar";
-    }
-    return "home";
-  });
-  const [preselectedDoctorId, setPreselectedDoctorId] = useState<string | null>(null);
-  const [symptomPreload, setSymptomPreload] = useState<string>("");
-  const [appointments, setAppointments] = useState<ScheduledAppointment[]>([]);
+// --- CENTRAL UNIFICADA (CHAVES, DIAS E HORÁRIOS) ---
+import { Permissoes } from './pages/Permissoes'; // 🌟 Centro de comando único da equipe
 
-  // Load appointments from localStorage on startup
+// --- OUTRAS IMPORTAÇÕES DO FINANCEIRO ---
+import { Planos } from './pages/Planos';
+import { Despesas } from './pages/Despesas';
+import { Repasses } from './pages/Repasses';
+import { Fechamento } from './pages/Fechamento';
+import { CadastroUsuario } from './pages/CadastroUsuario'; 
+
+// ========================================================
+// 🌟 NOVAS IMPORTAÇÕES: NOVAS CATEGORIAS DE MERCADO
+// ========================================================
+// Módulo 1: Hub de Engenharia Neuroeducacional (Escolas)
+import { DashboardEscola } from './pages/Escola/DashboardEscola';
+import { AlertaProfessor } from './pages/Escola/AlertaProfessor';
+
+// Módulo 2: Blindagem Corporativa e Neurocognitiva (Varejo / Empresas)
+import { DashboardCorporativo } from './pages/corporativo/DashboardCorporativo';
+
+// --- COMPONENTE DE SEGURANÇA (ROTA PRIVADA) ---
+function PrivateRoute({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("serclin_appointments");
-      if (stored) {
-        setAppointments(JSON.parse(stored));
-      } else {
-        // Seed initial mock historic appointment so the dashboard isn't completely generic
-        const initialMock: ScheduledAppointment[] = [
-          {
-            id: "past-1",
-            doctorName: "Dra. Laura Mendes",
-            doctorId: "dra-laura-mendes",
-            doctorRole: "Psicóloga de Jovens e Adultos",
-            doctorImage: "https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=crop&q=80&w=600",
-            specialtyName: "Psicologia",
-            dateStr: "Segunda-feira, 11 de Maio de 2026",
-            timeSlot: "14:30",
-            patientName: "Paciente Demonstrativo",
-            patientPhone: "(11) 98888-7777",
-            patientEmail: "paciente@exemplo.com",
-            paymentType: "Bradesco Saúde",
-            status: "completed",
-            code: "SRC-9081"
-          }
-        ];
-        setAppointments(initialMock);
-        localStorage.setItem("serclin_appointments", JSON.stringify(initialMock));
-      }
-    } catch (e) {
-      console.error("Local storage failed to load", e);
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const handleAppointmentCreated = (newApp: ScheduledAppointment) => {
-    const updated = [newApp, ...appointments];
-    setAppointments(updated);
-    localStorage.setItem("serclin_appointments", JSON.stringify(updated));
-  };
-
-  const handleCancelAppointment = (id: string) => {
-    const updated = appointments.map((app) => {
-      if (app.id === id) {
-        return { ...app, status: "canceled" as const };
-      }
-      return app;
-    });
-    setAppointments(updated);
-    localStorage.setItem("serclin_appointments", JSON.stringify(updated));
-  };
-
-  const renderActiveView = () => {
-    if (view.startsWith("pacientes-")) {
-      const patientId = view.substring(10);
-      return <Prontuario setView={setView} patientId={patientId} />;
-    }
-
-    switch (view) {
-      case "home":
-        return (
-          <Home 
-            setView={setView} 
-            setPreselectedDoctorId={setPreselectedDoctorId} 
-          />
-        );
-      case "booking":
-        return (
-          <Booking
-            preselectedDoctorId={preselectedDoctorId}
-            setPreselectedDoctorId={setPreselectedDoctorId}
-            onAppointmentCreated={handleAppointmentCreated}
-            setView={setView}
-          />
-        );
-      case "checkin":
-        return (
-          <Checkin />
-        );
-      case "acessos":
-        return (
-          <Dashboard setView={setView} />
-        );
-      case "despesas":
-        return (
-          <Despesas setView={setView} />
-        );
-      case "fechamento":
-        return (
-          <Fechamento setView={setView} />
-        );
-      case "gestao-permissoes":
-        return (
-          <GestaoPermissoes setView={setView} />
-        );
-      case "horarios":
-        return (
-          <Horarios setView={setView} />
-        );
-      case "pacientes":
-        return (
-          <Pacientes setView={setView} />
-        );
-      case "cadastro-usuario":
-        return (
-          <CadastroUsuario setView={setView} />
-        );
-      case "login":
-        return (
-          <Login setView={setView} />
-        );
-      case "planos":
-        return <Planos setView={setView} />;
-      case "relatorios":
-        return <Relatorios setView={setView} />;
-      case "redefinir-senha":
-        return <RedefinirSenha setView={setView} />;
-      case "obrigado":
-        return <Obrigado setView={setView} />;
-      case "repasses":
-        return <Repasses setView={setView} />;
-      case "validar": {
-        const path = window.location.pathname;
-        const verificationId = path.startsWith("/validar/") ? path.split("/validar/")[1] : "";
-        return <Validar setView={setView} verificationId={verificationId} />;
-      }
-      case "encaminhamentos":
-        return (
-          <div className="p-10 max-w-lg mx-auto text-center mt-28 bg-white shadow-xl rounded-[2.5rem] border border-gray-100 flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-[#0a2d54] text-white flex items-center justify-center font-black text-xl mb-4">SC</div>
-            <h2 className="text-[#0a2d54] uppercase font-black text-lg tracking-tight mb-2">Módulo em Integração</h2>
-            <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-6">Módulo {view} estará disponível na próxima atualização.</p>
-            <button onClick={() => setView("acessos")} className="bg-[#0a2d54] hover:bg-[#bfa571] text-white font-[#0a2d54] px-6 h-11 uppercase text-[10px] tracking-widest rounded-xl border-none cursor-pointer">Voltar para Dashboard</button>
-          </div>
-        );
-      case "chat":
-        return (
-          <AIChat
-            symptomPreload={symptomPreload}
-            setSymptomPreload={setSymptomPreload}
-            setView={setView}
-          />
-        );
-      default:
-        return (
-          <Home 
-            setView={setView} 
-            setPreselectedDoctorId={setPreselectedDoctorId} 
-          />
-        );
-    }
-  };
-
-  const isSystemView = [
-    "acessos",
-    "despesas",
-    "fechamento",
-    "gestao-permissoes",
-    "horarios",
-    "pacientes",
-    "login",
-    "planos",
-    "repasses",
-    "relatorios",
-    "encaminhamentos",
-    "cadastro-usuario",
-    "redefinir-senha",
-    "obrigado",
-    "validar"
-  ].includes(view) || view.startsWith("pacientes-");
-
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-950" id="serclin-app-root">
-      
-      {/* Navbar header - Only rendered on public facing pages */}
-      {!isSystemView && (
-        <Navbar 
-          currentView={view} 
-          setView={setView} 
-          hasAppointments={appointments.some(a => a.status === "active")}
-        />
-      )}
-
-      {/* Main Content Area */}
-      <div className="flex-grow flex flex-col animate-fadeIn">
-        {renderActiveView()}
+  if (loading) {
+    return (
+      <div className="h-screen bg-gray-50 flex items-center justify-center font-black uppercase text-gray-400 tracking-widest text-xs">
+        Carregando SerClin...
       </div>
+    );
+  }
+  
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
 
-      {/* Footer banner - Only rendered on public facing pages */}
-      {!isSystemView && <Footer setView={setView} />}
+  return <>{children}</>;
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Toaster position="top-center" richColors />
       
-    </div>
+      <Routes>
+        {/* ==========================================
+            ROTAS PÚBLICAS
+            ========================================== */}
+        <Route path="/" element={<Home />} /> 
+        <Route path="/login" element={<Login />} />
+        <Route path="/checkin" element={<Checkin />} />
+        <Route path="/validar/:id" element={<Validar />} />
+
+        {/* ==========================================
+            ROTAS PRIVADAS (Gestão SerClin Interna) 
+            ========================================== */}
+        
+        {/* 1. Rotas de Subnível */}
+        <Route path="/sistema/pacientes/:id" element={ <PrivateRoute><Prontuario /></PrivateRoute> } />
+        <Route path="/sistema/pacientes" element={ <PrivateRoute><Pacientes /></PrivateRoute> } />
+        <Route path="/sistema/relatorios" element={ <PrivateRoute><Relatorios /></PrivateRoute> } />
+        <Route path="/sistema/encaminhamentos" element={ <PrivateRoute><Encaminhamentos /></PrivateRoute> } />
+
+        {/* 🌟 CENTRAL UNIFICADA: Redireciona as 3 rotas antigas para o componente definitivo */}
+        <Route path="/sistema/permissoes" element={ <PrivateRoute><Permissoes /></PrivateRoute> } />
+        <Route path="/sistema/gestao" element={ <PrivateRoute><Permissoes /></PrivateRoute> } />
+        <Route path="/sistema/usuarios" element={ <PrivateRoute><Permissoes /></PrivateRoute> } />
+
+        {/* 2. Rotas do Módulo Financeiro */}
+        <Route path="/sistema/planos" element={ <PrivateRoute><Planos /></PrivateRoute> } />
+        <Route path="/sistema/despesas" element={ <PrivateRoute><Despesas /></PrivateRoute> } />
+        <Route path="/sistema/repasses" element={ <PrivateRoute><Repasses /></PrivateRoute> } />
+        <Route path="/sistema/fechamento" element={ <PrivateRoute><Fechamento /></PrivateRoute> } />
+         <Route path="/sistema/taxas" element={
+  <div className="min-h-screen bg-slate-50 p-6 md:p-12 flex items-center justify-center">
+    <CalculadoraTaxas />
+  </div>
+} />
+
+        {/* FORMULÁRIO DE NOVO CADASTRO DE PROFISSIONAL */}
+        <Route path="/sistema/usuarios/novo" element={ <PrivateRoute><CadastroUsuario /></PrivateRoute> } />
+
+        {/* 3. Rota Raiz do Sistema Interno */}
+        <Route path="/sistema" element={ <PrivateRoute><Dashboard /></PrivateRoute> } />
+
+        {/* ==========================================
+            🚀 PORTAL 1: HUB NEUROEDUCACIONAL (ESCOLAS)
+            ========================================== */}
+        {/* Painel Geral da Coordenação da Escola (Protegido por Login) */}
+        <Route path="/escola" element={ <PrivateRoute><DashboardEscola /></PrivateRoute> } />
+        
+        {/* Formulário rápido para o Professor disparar Alerta de Risco (LIVRE DE LOGIN) */}
+        <Route path="/escola/alerta" element={<AlertaProfessor />} />
+
+        {/* ==========================================
+            🚀 PORTAL 2: BLINDAGEM CORPORATIVA (EMPRESAS / VAREJO)
+            ========================================== */}
+        {/* Painel do RH e Diretoria Corporativa (Protegido por Login) */}
+        <Route path="/corporativo" element={ <PrivateRoute><DashboardCorporativo /></PrivateRoute> } />
+        
+        {/* Formulário de Sobrecarga para os colaboradores (LIVRE DE LOGIN) */}
+        <Route path="/corporativo/alerta" element={<FormularioAlerta />} />
+
+        {/* Rota Coringa */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
+
+export default App;

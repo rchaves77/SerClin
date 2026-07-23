@@ -1,0 +1,81 @@
+/* --- PROTEÇÃO GLOBAL PARA NOTCH DO IPHONE (SAFE AREA) --- */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Reseta o comportamento padrão do Vite */
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /* Garante que o fundo cubra a área do notch mas o conteúdo não */
+  padding-bottom: var(--safe-bottom);
+  background-color: #f9fafb;
+  overscroll-behavior-y: none;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+
+/* --- AJUSTE AUTOMÁTICO PARA TODOS OS HEADERS --- */
+header {
+  /* O header agora "abraça" o notch e empurra o logo/links para baixo */
+  padding-top: var(--safe-top) !important;
+  padding-bottom: 12px; 
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: white;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+/* --- AJUSTE PARA MODAIS E SOBREPOSIÇÕES --- */
+.fixed.inset-0 {
+  /* Garante que modais não fiquem atrás do Notch */
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+
+/* --- MENU DE ÍCONES ROLÁVEL NO MOBILE --- */
+@media (max-width: 768px) {
+  .menu-icones-mobile {
+    display: flex !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    gap: 8px !important;
+    padding: 10px 15px !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .menu-icones-mobile::-webkit-scrollbar {
+    display: none;
+  }
+
+  .menu-icones-mobile button, 
+  .menu-icones-mobile a {
+    flex-shrink: 0 !important;
+  }
+  
+  /* Ajuste para o conteúdo principal não grudar nas bordas do iPhone */
+  main {
+    padding-top: 10px !important;
+    padding-left: max(1rem, env(safe-area-inset-left)) !important;
+    padding-right: max(1rem, env(safe-area-inset-right)) !important;
+  }
+}
+
+/* Animações */
+@keyframes logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

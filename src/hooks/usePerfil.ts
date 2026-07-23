@@ -1,59 +1,61 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export function usePerfil() {
-  const [perfil, setPerfil] = useState<any>(null);
+  const [perfil, setPerfil] = useState<{role: string, email: string} | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadPerfil() {
+    async function getPerfil() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: profile } = await supabase
-            .from("perfis")
-            .select("*")
-            .eq("email", user.email)
-            .single();
-          
-          if (profile) {
-            setPerfil(profile);
-            setLoading(false);
-            return;
-          }
-        }
         
-        // Dynamic fallback representing standard admin role
-        setPerfil({
-          id: "fallback-admin-id",
-          nome: "Dr. Rômulo Chaves",
-          email: "romulochaves77@gmail.com",
-          role: "admin",
-          cor: "#0a2d54",
-          permissao_financeiro: true,
-          permissao_relatorios: true,
-          permissao_confirmacao_amanha: true,
-          permissao_agendar: true,
-          permissao_gerar_atestado: true,
-          permissao_auditoria: true,
-          permissao_excluir: true
-        });
+        if (user) {
+          // --- A MÁGICA ESTÁ AQUI ---
+          // Trocamos 'id' por 'email' e single() por maybeSingle() para matar o Erro 406
+          const { data, error } = await supabase
+            .from('perfis')
+            .select('role, email') 
+            .eq('email', user.email) 
+            .maybeSingle();
+
+          if (!error && data) {
+            // Normaliza o conteúdo da coluna 'role'
+            const roleBruta = data.role || 'profissional';
+            const roleLimpa = roleBruta.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            
+            setPerfil({
+              role: roleLimpa,
+              email: data.email?.toLowerCase() || user.email?.toLowerCase() || ''
+            });
+          } else {
+            // Caso não encontre o perfil, define como profissional por segurança
+            setPerfil({ role: 'profissional', email: user.email?.toLowerCase() || '' });
+          }
+        } else {
+          setPerfil(null);
+        }
       } catch (err) {
-        console.error("usePerfil fallback catch:", err);
+        console.error("Erro SerClin Perfil:", err);
       } finally {
         setLoading(false);
       }
     }
-    loadPerfil();
+    getPerfil();
   }, []);
 
-  const role = perfil?.role?.toLowerCase() || "admin";
+  const role = perfil?.role || 'profissional';
+  const email = perfil?.email || '';
 
-  return {
-    perfil,
-    loading,
-    isAdmin: role === "admin" || perfil?.email === "romulochaves77@gmail.com" || perfil?.email === "nahpsicologiachaves@gmail.com",
-    isSecretaria: role === "secretaria",
-    isProfissional: role === "profissional"
+  // Regras de permissão baseadas na coluna 'role' do banco
+  const isAdmin = role === 'admin' || email === 'romulochaves77@gmail.com' || email === 'nahpsicologiachaves@gmail.com';
+  const isSecretaria = role === 'secretaria' || role.includes('recep');
+  
+  return { 
+    role, 
+    loading, 
+    isAdmin,
+    isSecretaria,
+    isGestorSeguro: isAdmin || isSecretaria 
   };
 }
