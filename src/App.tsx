@@ -19,6 +19,7 @@ import { Encaminhamentos } from './pages/Encaminhamentos';
 
 // --- CENTRAL UNIFICADA (CHAVES, DIAS E HORÁRIOS) ---
 import { Permissoes } from './pages/Permissoes'; // 🌟 Centro de comando único da equipe
+import ScrollToTop from './components/ScrollToTop';
 
 // --- OUTRAS IMPORTAÇÕES DO FINANCEIRO ---
 import { Planos } from './pages/Planos';
@@ -74,6 +75,7 @@ function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-center" richColors />
+      <ScrollToTop />
       
       <Routes>
         {/* ==========================================
