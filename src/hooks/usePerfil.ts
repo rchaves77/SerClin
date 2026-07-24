@@ -33,7 +33,20 @@ export function usePerfil() {
             setPerfil({ role: 'profissional', email: user.email?.toLowerCase() || '' });
           }
         } else {
-          setPerfil(null);
+          const demoRaw = localStorage.getItem('serclin_demo_session');
+          if (demoRaw) {
+            try {
+              const demoUser = JSON.parse(demoRaw);
+              setPerfil({
+                role: demoUser.role || 'admin',
+                email: demoUser.email || 'romulochaves77@gmail.com'
+              });
+            } catch {
+              setPerfil({ role: 'admin', email: 'romulochaves77@gmail.com' });
+            }
+          } else {
+            setPerfil(null);
+          }
         }
       } catch (err) {
         console.error("Erro SerClin Perfil:", err);

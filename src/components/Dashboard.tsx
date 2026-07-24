@@ -142,7 +142,7 @@ export function Dashboard({ setView }: DashboardProps) {
     else if (path.includes('fechamento') || path.includes('caixa')) setView('fechamento');
     else if (path.includes('relatorio')) setView('relatorios');
     else if (path.includes('permissao') || path.includes('usuario') || path.includes('equipe')) setView('gestao-permissoes');
-    else if (path.includes('encaminhamento') || path.includes('unimeta')) setView('encaminhamentos');
+    else if (path.includes('encaminhamento')) setView('encaminhamentos');
     else setView('acessos');
   };
 

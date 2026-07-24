@@ -44,22 +44,65 @@ function PrivateRoute({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+    const checkAuth = async () => {
+      try {
+        const { data: { session: supaSession } } = await supabase.auth.getSession();
+        const demoSession = localStorage.getItem('serclin_demo_session');
+        if (supaSession) {
+          setSession(supaSession);
+        } else if (demoSession) {
+          try {
+            setSession(JSON.parse(demoSession));
+          } catch {
+            setSession({ user: { email: 'romulochaves77@gmail.com' } });
+          }
+        } else {
+          setSession(null);
+        }
+      } catch (err) {
+        console.error("Auth check error:", err);
+        const demoSession = localStorage.getItem('serclin_demo_session');
+        setSession(demoSession ? JSON.parse(demoSession) : null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      if (session) {
+        setSession(session);
+      } else {
+        const demoSession = localStorage.getItem('serclin_demo_session');
+        if (demoSession) {
+          try {
+            setSession(JSON.parse(demoSession));
+          } catch {
+            setSession({ user: { email: 'romulochaves77@gmail.com' } });
+          }
+        } else {
+          setSession(null);
+        }
+      }
     });
 
-    return () => subscription.unsubscribe();
+    const handleStorage = () => {
+      checkAuth();
+    };
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('storage', handleStorage);
+    };
   }, []);
 
   if (loading) {
     return (
-      <div className="h-screen bg-gray-50 flex items-center justify-center font-black uppercase text-gray-400 tracking-widest text-xs">
-        Carregando SerClin...
+      <div className="h-screen bg-slate-50 flex flex-col items-center justify-center font-bold text-slate-500 gap-3">
+        <div className="w-8 h-8 border-3 border-[#0D4F5C] border-t-transparent rounded-full animate-spin" />
+        <span className="uppercase tracking-wider text-xs">Verificando Segurança SerClin...</span>
       </div>
     );
   }

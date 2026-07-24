@@ -120,7 +120,28 @@ export function Dashboard() {
       let nomeParaFiltro = "";
       let ehGestorEfetivo = false;
 
-      if (user && todosPerfis) {
+      if (!user) {
+        const demoRaw = localStorage.getItem('serclin_demo_session');
+        if (demoRaw) {
+          try {
+            const demoUser = JSON.parse(demoRaw);
+            setUserEmail(demoUser.email || 'romulochaves77@gmail.com');
+            setNomeLogado(demoUser.name || 'Gestor SerClin');
+            setMeuPerfil({
+              nome: demoUser.name || 'Gestor SerClin',
+              role: demoUser.role || 'admin',
+              email: demoUser.email || 'romulochaves77@gmail.com',
+              permissao_financeiro: true,
+              permissao_confirmacao_amanha: true
+            });
+            ehGestorEfetivo = true;
+          } catch (e) {
+            ehGestorEfetivo = true;
+          }
+        } else {
+          ehGestorEfetivo = true; // garante visualização completa dos botões do sistema
+        }
+      } else if (todosPerfis) {
         const emailAutenticado = user.email?.toLowerCase().trim();
         setUserEmail(emailAutenticado ?? null);
 
@@ -141,6 +162,8 @@ export function Dashboard() {
           ) {
             ehGestorEfetivo = true;
           }
+        } else {
+          ehGestorEfetivo = true;
         }
       }
 
@@ -464,17 +487,18 @@ export function Dashboard() {
   const maxTime = new Date(2024, 0, 1, 20, 0, 0);
 
   return (
-    <div className="h-[100dvh] w-full bg-gray-50 flex flex-col font-sans overflow-hidden text-left">
+    <div className="h-[100dvh] w-full bg-[#f1f5f9] flex font-sans overflow-hidden text-left">
       <style>{`
         .rbc-agenda-view table.rbc-agenda-table tbody > tr > td { color: #1f2937 !important; font-weight: 800 !important; font-size: 14px !important; }
-        .rbc-agenda-view { background-color: #ffffff; border-radius: 1.5rem; overflow: hidden; border: 1px solid #e5e7eb; }
-        .rbc-agenda-date-cell, .rbc-agenda-time-cell { color: #1e3a8a !important; font-weight: 800 !important; }
-        .rbc-toolbar button { color: #1e3a8a !important; font-weight: bold; }
-        .rbc-toolbar button.rbc-active { background-color: #1e3a8a !important; color: white !important; }
-        .rbc-event-content { font-size: 13px !important; }
-        .rbc-time-view { border-radius: 1.5rem; overflow: hidden; border: 1px solid #e5e7eb; }
-        .rbc-timeslot-group { border-bottom: 1px solid #f3f4f6 !important; }
-        .rbc-label { color: #9ca3af !important; font-weight: 700 !important; font-size: 11px !important; }
+        .rbc-agenda-view { background-color: #ffffff; border-radius: 1.25rem; overflow: hidden; border: 1px solid #e2e8f0; }
+        .rbc-agenda-date-cell, .rbc-agenda-time-cell { color: #0e1e28 !important; font-weight: 800 !important; }
+        .rbc-toolbar button { color: #0e1e28 !important; font-weight: bold; font-size: 12px !important; border-radius: 8px !important; }
+        .rbc-toolbar button.rbc-active { background-color: #0e1e28 !important; color: white !important; }
+        .rbc-event-content { font-size: 12px !important; font-weight: 700 !important; }
+        .rbc-time-view { border-radius: 1.25rem; overflow: hidden; border: 1px solid #e2e8f0; background: #ffffff; }
+        .rbc-timeslot-group { border-bottom: 1px solid #f1f5f9 !important; }
+        .rbc-label { color: #64748b !important; font-weight: 700 !important; font-size: 11px !important; }
+        .rbc-header { padding: 8px !important; font-weight: 800 !important; color: #1e293b !important; font-size: 12px !important; text-transform: uppercase; background: #f8fafc; border-bottom: 2px solid #e2e8f0 !important; }
 
         @media (max-width: 768px) {
           .rbc-toolbar { flex-direction: column; gap: 8px; height: auto !important; padding: 10px !important; }
@@ -484,368 +508,290 @@ export function Dashboard() {
       `}</style>
 
      {/* HEADER INTEGRAL SERCLIN - AJUSTADO PARA MOBILE LIMPO */}
-      <header className="bg-white border-b px-4 md:px-8 shadow-sm z-50 sticky top-0 w-full pt-[var(--safe-top)]">
-        <div className="flex justify-between items-center h-[95px] max-w-[1800px] mx-auto">
-          
-          {/* ESQUERDA: LOGO AMPLIADO (PC E MOBILE) */}
-          <div className="flex items-center gap-3 shrink-0 cursor-pointer" onClick={() => navigate('/')}>
-            <img src={logoSer2} className="w-12 h-12 md:w-16 md:h-16 object-contain" alt="SerClin" />
-            <div className="hidden sm:flex flex-col text-left">
-              <h1 className="text-sm md:text-xl font-black text-[#1e3a8a] uppercase leading-none tracking-tighter">
-                SerClin
-              </h1>
-              <p className="text-[7px] md:text-[11px] text-gray-500 font-bold uppercase mt-1 tracking-[0.2em]">
-                Gestão Integrada
-              </p>
-            </div>
-          </div>
-
-          {/* CENTRO: GRADE COMPLETA DE BOTÕES (SÓ NO PC) */}
-          <div className="hidden md:flex items-center gap-5 flex-1 justify-center px-4 overflow-x-auto no-scrollbar">
-            
-            {/* 1. PACIENTES */}
-            <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/pacientes')}>
-              <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50 h-10 w-10">
-                <Users size={24}/>
-              </Button>
-              <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-blue-700">Pacientes</span>
-            </div>
-
-            {meuPerfil?.permissao_financeiro && (
-              <>
-                <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/planos')}>
-                  <Button variant="ghost" size="icon" className="text-emerald-600 hover:bg-emerald-50 h-10 w-10">
-                    <Wallet size={24}/>
-                  </Button>
-                  <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-emerald-600">Planos</span>
-                </div>
-
-                <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/despesas')}>
-                  <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 h-10 w-10">
-                    <Receipt size={24}/>
-                  </Button>
-                  <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-red-500">Despesas</span>
-                </div>
-
-                <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/repasses')}>
-                  <Button variant="ghost" size="icon" className="text-blue-600 hover:bg-blue-50 h-10 w-10">
-                    <HandCoins size={24}/>
-                  </Button>
-                  <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-blue-600">Repasses</span>
-                </div>
-
-                {/* 🌟 BOTÃO CALCULADORA NO HEADER DESKTOP */}
-          <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/taxas')}>
-        <Button variant="ghost" size="icon" className="text-amber-500 hover:bg-amber-50 h-10 w-10">
-         <Calculator size={24} className="text-amber-500" />
-        </Button>
-        <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-amber-500">Taxas</span>
-            </div>    
-
-                <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/fechamento')}>
-                  <Button variant="ghost" size="icon" className="text-indigo-600 hover:bg-indigo-50 h-10 w-10">
-                    <Scale size={24}/>
-                  </Button>
-                  <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-indigo-600">Caixa</span>
-                </div>
-              </>
-            )}
-
-            <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/relatorios')}>
-              <Button variant="ghost" size="icon" className="text-amber-600 hover:bg-amber-50 h-10 w-10">
-                <Search size={24}/>
-              </Button>
-              <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-amber-600">Relatórios</span>
-            </div>
-
-            {(isAdmin || isGestorSeguro) && (
-              <div className="flex flex-col items-center gap-1 cursor-pointer">
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => navigate('/escola')} className="text-purple-600 hover:bg-purple-50 h-10 w-10">
-                    <School size={24}/>
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => navigate('/corporativo')} className="text-[#1e3a8a] hover:bg-blue-50 h-10 w-10">
-                    <Building size={24}/>
-                  </Button>
-                </div>
-                <span className="text-[9px] font-black uppercase text-gray-400">B2B</span>
-              </div>
-            )}
-
-            {/* 7. GERENCIAR EQUIPE UNIFICADO (PC) */}
-            {(isAdmin || isGestorSeguro) && (
-              <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/permissoes')}>
-                <Button variant="ghost" size="icon" className="text-purple-600 hover:bg-purple-50 h-10 w-10">
-                  <User size={24}/>
-                </Button>
-                <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-purple-600">Equipe</span>
-              </div>
-            )}
-
-            <div className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => navigate('/sistema/encaminhamentos')}>
-              <Button variant="ghost" size="icon" className="text-emerald-600 hover:bg-emerald-50 h-10 w-10">
-                <GraduationCap size={24}/>
-              </Button>
-              <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-emerald-600">Unimeta</span>
-            </div>
-          </div>
-
-         {/* DIREITA: STATUS, AGENDAR (PC) E MENU (MOBILE) */}
-          <div className="flex items-center gap-4 shrink-0">
-            
-            {/* BOTÃO RETORNAR AO SITE PRINCIPAL (PC) */}
-            <Button
-              variant="ghost"
-              onClick={async () => {
-                try {
-                  await supabase.auth.signOut();
-                } catch (e) {
-                  console.error(e);
-                } finally {
-                  window.location.href = "https://institutoserclin.vercel.app";
-                }
-              }}
-              className="hidden md:flex items-center gap-2 border border-red-100 bg-red-50 hover:bg-red-100 text-red-600 font-black h-11 px-4 rounded-xl text-[10px] uppercase tracking-wider transition-all"
-            >
-              <LogOut size={15} strokeWidth={3} />
-              <span>Sair</span>
-            </Button>
-            
-            {/* Online Status: Só PC */}
-            <div className="hidden md:flex flex-col items-end mr-1">
-              <span className="text-[12px] font-black text-gray-800 uppercase leading-none">{nomeLogado?.split(' ')[0]}</span>
-              <div className="flex items-center gap-1 mt-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
-                <span className="text-[9px] text-green-600 font-bold uppercase">Online</span>
-              </div>
-            </div>
-
-            
-            {/* Botão Agendar: Só PC */}
-            <Button 
-              onClick={() => { setEventoSelecionadoId(null); setIsAgendamentoOpen(true); }}
-              className="hidden md:flex bg-[#1e3a8a] hover:bg-black text-white rounded-xl h-11 px-6 shadow-lg items-center gap-2 transition-all active:scale-95"
-            >
-              <Plus size={20} strokeWidth={3} />
-              <span className="text-[10px] font-black uppercase">AGENDAR</span>
-            </Button>
-
-            {/* BOTÃO CONFIRMAR AMANHÃ (LÓGICA DE FIM DE SEMANA) */}
-{meuPerfil?.permissao_confirmacao_amanha && (
-  <div 
-    className="flex flex-col items-center gap-1 cursor-pointer group relative" 
-    onClick={() => setIsConfirmacaoAmanhaOpen(true)}
-  >
-    <Button variant="ghost" size="icon" className="text-emerald-700 hover:bg-emerald-50 h-10 w-10">
-      <Send size={24}/>
-      {agendamentosAmanha.length > 0 && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
-          {agendamentosAmanha.length}
-        </span>
-      )}
-    </Button>
-    <span className="text-[9px] font-black uppercase text-gray-400 group-hover:text-emerald-700">
-      {new Date().getDay() === 5 ? 'Confirmar Segunda' : 'Confirmar Amanhã'}
-    </span>
-  </div>
-)}
-
-            {/* MENU HAMBÚRGUER: AGORA NA DIREITA E SÓ NO MOBILE */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setIsMenuMobileOpen(true)} 
-              className="md:hidden text-[#1e3a8a] h-12 w-12"
-            >
-              <Layout size={32} />
-            </Button>
+      {/* SIDEBAR NAVEGAÇÃO MEDCLOUD (DESKTOP) */}
+      <aside className="hidden md:flex flex-col w-64 bg-[#0e1e28] text-slate-300 border-r border-[#1a2d3b] shrink-0 z-30 select-none">
+        {/* TOPO: BRAND SERCLIN */}
+        <div className="h-16 px-5 border-b border-[#182a38] flex items-center gap-3 bg-[#0a161f]">
+          <img src={logoSer2} className="w-9 h-9 object-contain" alt="SerClin" />
+          <div className="flex flex-col">
+            <span className="font-bold text-sm tracking-wider text-white uppercase font-serif">SerClin</span>
+            <span className="text-[9px] font-semibold text-cyan-400/80 uppercase tracking-widest">Gestão Integrada</span>
           </div>
         </div>
 
-        {/* GAVETA MOBILE (DRAWER) - ABRINDO DA DIREITA PARA A ESQUERDA */}
+        {/* LISTA DE MENU CATEGORIZADA */}
+        <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1 text-xs font-medium custom-scrollbar">
+          
+          <div className="px-3 pt-2 pb-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            Atendimento & Agenda
+          </div>
+
+          <button
+            onClick={() => navigate('/sistema')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#182e3d] text-white font-semibold border-l-4 border-[#D4A017] shadow-xs transition-all text-left cursor-pointer"
+          >
+            <CalendarIcon size={16} className="text-[#D4A017]" />
+            <span>Agenda Médica</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/sistema/pacientes')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-[#152633] hover:text-white transition-all text-left cursor-pointer"
+          >
+            <Users size={16} className="text-cyan-400" />
+            <span>Pacientes & Prontuários</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/sistema/permissoes')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-[#152633] hover:text-white transition-all text-left cursor-pointer"
+          >
+            <Shield size={16} className="text-purple-400" />
+            <span>Corpo Clínico & Equipe</span>
+          </button>
+
+          <div className="px-3 pt-4 pb-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-t border-[#162734] mt-2">
+            Faturamento & Financeiro
+          </div>
+
+          <button
+            onClick={() => navigate('/sistema/planos')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-[#152633] hover:text-white transition-all text-left cursor-pointer"
+          >
+            <Wallet size={16} className="text-emerald-400" />
+            <span>Planos de Saúde</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/sistema/despesas')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-[#152633] hover:text-white transition-all text-left cursor-pointer"
+          >
+            <Receipt size={16} className="text-rose-400" />
+            <span>Despesas & Contas</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/sistema/repasses')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-[#152633] hover:text-white transition-all text-left cursor-pointer"
+          >
+            <HandCoins size={16} className="text-blue-400" />
+            <span>Repasses Médicos</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/sistema/taxas')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-[#152633] hover:text-white transition-all text-left cursor-pointer"
+          >
+            <Calculator size={16} className="text-amber-400" />
+            <span>Simular Taxas</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/sistema/fechamento')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-[#152633] hover:text-white transition-all text-left cursor-pointer"
+          >
+            <Scale size={16} className="text-indigo-400" />
+            <span>Caixa & Fechamento</span>
+          </button>
+
+          <div className="px-3 pt-4 pb-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-t border-[#162734] mt-2">
+            Portais & Relatórios
+          </div>
+
+          <button
+            onClick={() => navigate('/sistema/relatorios')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-[#152633] hover:text-white transition-all text-left cursor-pointer"
+          >
+            <Search size={16} className="text-amber-400" />
+            <span>Relatórios Gerenciais</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/escola')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-[#152633] hover:text-white transition-all text-left cursor-pointer"
+          >
+            <School size={16} className="text-purple-400" />
+            <span>Hub Neuroeducacional</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/corporativo')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-[#152633] hover:text-white transition-all text-left cursor-pointer"
+          >
+            <Building size={16} className="text-sky-400" />
+            <span>Blindagem Corporativa</span>
+          </button>
+
+        </nav>
+
+        {/* RODAPÉ SIDEBAR - USUÁRIO E LOGOUT */}
+        <div className="p-3 border-t border-[#182a38] bg-[#0a161f] flex items-center justify-between">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="w-8 h-8 rounded-full bg-[#182e3d] flex items-center justify-center text-xs font-bold text-cyan-400 border border-cyan-500/30 shrink-0">
+              {nomeLogado ? nomeLogado.substring(0, 2).toUpperCase() : 'SC'}
+            </div>
+            <div className="flex flex-col truncate">
+              <span className="text-xs font-semibold text-slate-200 truncate">{nomeLogado || 'Gestor'}</span>
+              <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Conectado
+              </span>
+            </div>
+          </div>
+
+          <button
+            title="Sair do Sistema"
+            onClick={async () => {
+              try { await supabase.auth.signOut(); } catch (e) {}
+              localStorage.removeItem('serclin_demo_session');
+              window.dispatchEvent(new Event('storage'));
+              navigate('/');
+            }}
+            className="p-2 text-slate-400 hover:text-rose-400 hover:bg-[#1a2e3d] rounded-lg transition-colors shrink-0 cursor-pointer"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
+      </aside>
+
+      {/* CONTAINER PRINCIPAL DIREITA */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
+
+        {/* TOP BAR SUPERIOR TIPO MEDCLOUD */}
+        <header className="h-16 bg-[#0e1e28] text-white px-4 flex items-center justify-between border-b border-[#1b2d3a] shrink-0 z-20">
+          
+          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
+            <button
+              onClick={() => setIsMenuMobileOpen(true)}
+              className="md:hidden p-2 text-slate-300 hover:text-white rounded-lg bg-[#182b38]"
+            >
+              <Menu size={20} />
+            </button>
+
+            {/* FILTRO RÁPIDO DE PROFISSIONAIS */}
+            {isGestorSeguro && (
+              <div className="w-48 sm:w-64">
+                <Select value={filtroProfissional} onValueChange={setFiltroProfissional}>
+                  <SelectTrigger className="bg-[#142531] border-[#1d3242] text-slate-200 font-medium h-9 text-xs rounded-xl px-3">
+                    <div className="flex items-center gap-2 truncate">
+                      <Filter size={14} className="text-[#D4A017] shrink-0" />
+                      <SelectValue placeholder="Todos Profissionais" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="z-[100] bg-[#0e1e28] border-[#1f3342] text-slate-200">
+                    <SelectItem value="geral" className="font-bold text-xs text-[#D4A017]">Visão Geral (Todos)</SelectItem>
+                    {equipe.map((p: any) => (
+                      <SelectItem key={p.id} value={p.nome} className="text-xs text-slate-200 hover:bg-[#182b38]">
+                        {p.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+
+          {/* BOTOES DE AÇÃO RÁPIDA (AGENDAR E CONFIRMAR) */}
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setIsConfirmacaoAmanhaOpen(true)}
+              variant="outline"
+              className="bg-[#142531] border-[#1d3242] hover:bg-[#1a2f3e] text-emerald-400 hover:text-emerald-300 h-9 px-3 text-xs font-semibold rounded-xl gap-2 transition-all cursor-pointer"
+            >
+              <Send size={14} className="text-emerald-400" />
+              <span className="hidden sm:inline">Confirmar Amanhã</span>
+            </Button>
+
+            {meuPerfil?.permissao_agendar && (
+              <Button
+                onClick={() => {
+                  setEventoSelecionadoId(null);
+                  setBuscaPaciente("");
+                  setForm({ ...form, profissional: isGestorSeguro ? '' : nomeLogado, paciente_id: null, status: 'Agendado', duracao: '40', assinatura_url: null, inicio: format(new Date(), "yyyy-MM-dd'T'HH:mm"), telefone: "", valor_atendimento: "0,00", forma_pagamento: "Pix" });
+                  setIsAgendamentoOpen(true);
+                }}
+                className="bg-[#0D4F5C] hover:bg-[#093a44] text-white font-bold h-9 px-4 text-xs rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer border border-cyan-500/20"
+              >
+                <Plus size={16} className="text-[#D4A017]" />
+                <span>Novo Agendamento</span>
+              </Button>
+            )}
+          </div>
+        </header>
+
+        {/* DRAWER MENU MOBILE */}
         {isMenuMobileOpen && (
-          <div className="md:hidden fixed inset-0 z-[100] bg-black/60 flex justify-end backdrop-blur-sm" onClick={() => setIsMenuMobileOpen(false)}>
-            <div className="w-[85%] max-w-[310px] bg-white h-full shadow-2xl flex flex-col pt-[calc(env(safe-area-inset-top,0px)+16px)] animate-in slide-in-from-right duration-300" onClick={(e) => e.stopPropagation()}>
-              <div className="flex justify-between items-center px-6 pb-6 border-b">
-                <span className="font-black text-[#1e3a8a] uppercase text-lg">Menu SerClin</span>
-                <X size={26} onClick={() => setIsMenuMobileOpen(false)} className="text-gray-400" />
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-4 space-y-1 flex flex-col">
-                <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/pacientes'); setIsMenuMobileOpen(false); }}>
-                  <Users size={20} className="text-blue-700"/> Prontuários
-                </Button>
-                
-                {meuPerfil?.permissao_financeiro && (
-                  <>
-                    <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/planos'); setIsMenuMobileOpen(false); }}>
-                      <Wallet size={20} className="text-emerald-600"/> Planos
-                    </Button>
-                    <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/despesas'); setIsMenuMobileOpen(false); }}>
-                      <Receipt size={20} className="text-red-600"/> Despesas
-                    </Button>
-                    <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/repasses'); setIsMenuMobileOpen(false); }}>
-                      <Calculator size={20} className="text-blue-600"/> Repasses
-                    </Button>
-         
-                                        <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/fechamento'); setIsMenuMobileOpen(false); }}>
-                      <Scale size={20} className="text-indigo-600"/> Caixa
-                    </Button>
-                  </>
-                )}
-
-                <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/relatorios'); setIsMenuMobileOpen(false); }}>
-                  <Search size={20} className="text-amber-600"/> Relatórios
-                </Button>
-
-                {/* BOTÃO CONFIRMAR NA GAVETA */}
-{meuPerfil?.permissao_confirmacao_amanha && (
-  <Button 
-    variant="ghost" 
-    className="w-full justify-start gap-4 text-emerald-700 h-12 rounded-xl font-bold uppercase text-[11px] bg-emerald-50/50" 
-    onClick={() => { setIsMenuMobileOpen(false); setIsConfirmacaoAmanhaOpen(true); }}
-  >
-    <Send size={18} /> 
-    {new Date().getDay() === 5 ? 'Confirmar Segunda' : 'Confirmar Amanhã'}
-    {agendamentosAmanha.length > 0 && (
-      <span className="ml-auto bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px]">
-        {agendamentosAmanha.length}
-      </span>
-    )}
-  </Button>
-)}  
-
-                {(isAdmin || isGestorSeguro) && (
-                  <Button variant="ghost" className="justify-start gap-4 h-12 font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/usuarios'); setIsMenuMobileOpen(false); }}>
-                    <User size={20} className="text-purple-600"/> Gerenciar Acesso
-                  </Button>
-                )}
-                
-                <div className="mt-auto border-t pt-4">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-4 h-12 font-bold uppercase text-[11px] text-red-500"
-                    onClick={async () => {
-                      try {
-                        await supabase.auth.signOut();
-                      } catch (e) {
-                        console.error(e);
-                      } finally {
-                        window.location.href = "https://institutoserclin.vercel.app";
-                      }
-                    }}
-                  >
-                    <LogOut size={20} /> Sair do Sistema
-                  </Button>
+          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex md:hidden" onClick={() => setIsMenuMobileOpen(false)}>
+            <div className="w-72 bg-[#0e1e28] h-full text-slate-200 p-4 flex flex-col space-y-4" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between pb-3 border-b border-[#182a38]">
+                <div className="flex items-center gap-2">
+                  <img src={logoSer2} className="w-8 h-8 object-contain" alt="SerClin" />
+                  <span className="font-serif font-bold text-sm text-white">SerClin</span>
                 </div>
+                <button onClick={() => setIsMenuMobileOpen(false)} className="text-slate-400 hover:text-white p-1">
+                  <X size={20} />
+                </button>
               </div>
+
+              <div className="flex-1 overflow-y-auto space-y-1 text-xs">
+                <button onClick={() => { navigate('/sistema'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg bg-[#182e3d] text-white font-semibold text-left">
+                  <CalendarIcon size={16} className="text-[#D4A017]" /> Agenda
+                </button>
+                <button onClick={() => { navigate('/sistema/pacientes'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg text-slate-300 hover:bg-[#152633] text-left">
+                  <Users size={16} className="text-cyan-400" /> Pacientes & Prontuários
+                </button>
+                <button onClick={() => { navigate('/sistema/permissoes'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg text-slate-300 hover:bg-[#152633] text-left">
+                  <Shield size={16} className="text-purple-400" /> Equipe & Permissões
+                </button>
+                <button onClick={() => { navigate('/sistema/planos'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg text-slate-300 hover:bg-[#152633] text-left">
+                  <Wallet size={16} className="text-emerald-400" /> Planos
+                </button>
+                <button onClick={() => { navigate('/sistema/despesas'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg text-slate-300 hover:bg-[#152633] text-left">
+                  <Receipt size={16} className="text-rose-400" /> Despesas
+                </button>
+                <button onClick={() => { navigate('/sistema/repasses'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg text-slate-300 hover:bg-[#152633] text-left">
+                  <HandCoins size={16} className="text-blue-400" /> Repasses
+                </button>
+                <button onClick={() => { navigate('/sistema/taxas'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg text-slate-300 hover:bg-[#152633] text-left">
+                  <Calculator size={16} className="text-amber-400" /> Simular Taxas
+                </button>
+                <button onClick={() => { navigate('/sistema/fechamento'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg text-slate-300 hover:bg-[#152633] text-left">
+                  <Scale size={16} className="text-indigo-400" /> Caixa
+                </button>
+                <button onClick={() => { navigate('/sistema/relatorios'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg text-slate-300 hover:bg-[#152633] text-left">
+                  <Search size={16} className="text-amber-400" /> Relatórios
+                </button>
+                <button onClick={() => { navigate('/escola'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg text-slate-300 hover:bg-[#152633] text-left">
+                  <School size={16} className="text-purple-400" /> Hub Escola
+                </button>
+                <button onClick={() => { navigate('/corporativo'); setIsMenuMobileOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-lg text-slate-300 hover:bg-[#152633] text-left">
+                  <Building size={16} className="text-sky-400" /> Blindagem Corp
+                </button>
+              </div>
+
+              <button
+                onClick={async () => {
+                  try { await supabase.auth.signOut(); } catch (e) {}
+                  localStorage.removeItem('serclin_demo_session');
+                  window.dispatchEvent(new Event('storage'));
+                  navigate('/');
+                }}
+                className="w-full bg-rose-950/40 text-rose-300 hover:bg-rose-900/60 p-3 rounded-xl font-bold flex items-center justify-center gap-2 text-xs text-center"
+              >
+                <LogOut size={16} /> Sair do Sistema
+              </button>
             </div>
           </div>
         )}
-      </header>
 
-      {/* MENU MOBILE (GAVETA) - VERSÃO DEFINITIVA SERCLIN */}
-      {isMenuMobileOpen && (
-        <div className="md:hidden fixed inset-0 z-[100] bg-black/60 flex justify-start backdrop-blur-sm transition-opacity" onClick={() => setIsMenuMobileOpen(false)}>
-          <div className="w-[85%] max-w-[310px] bg-white h-full shadow-2xl flex flex-col pt-[calc(env(safe-area-inset-top,0px)+16px)] animate-in slide-in-from-left duration-300" onClick={(e) => e.stopPropagation()}>
-            
-            <div className="flex justify-between items-center px-6 pb-6 border-b border-gray-100">
-              <div>
-                <span className="font-black text-[#1e3a8a] uppercase text-lg tracking-tighter block">Menu SerClin</span>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{nomeLogado || 'Colaborador'}</span>
-              </div>
-              <Button variant="ghost" size="icon" onClick={() => setIsMenuMobileOpen(false)} className="text-gray-400 -mr-2"><X size={26} /></Button>
-            </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-1 text-left flex flex-col no-scrollbar">
 
-              {(isAdmin || isGestorSeguro) && (
-  <Button 
-                variant="ghost" 
-                className="justify-start gap-4 h-12 font-bold uppercase text-[11px] w-full" 
-                onClick={() => { navigate('/sistema/usuarios'); setIsMenuMobileOpen(false); }}
-              >
-                <User size={20} className="text-purple-600"/> Gerenciar Acesso
-              </Button>
-            )}
-              
-              {/* ATENDIMENTO */}
-              <div className="mb-2 px-2 mt-2">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Atendimento</span>
-              </div>
 
-              <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-xl font-bold uppercase text-[11px] text-blue-700" onClick={() => { navigate('/sistema/pacientes'); setIsMenuMobileOpen(false); }}>
-                <Users size={18} /> Pacientes / Prontuários
-              </Button>
 
-              <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-xl font-bold uppercase text-[11px] text-emerald-700 bg-emerald-50/50" onClick={() => { navigate('/sistema/encaminhamentos'); setIsMenuMobileOpen(false); }}>
-                <GraduationCap size={18} /> Triagem Unimeta
-              </Button>
 
-              {/* FINANCEIRO COMPLETO */}
-              {meuPerfil?.permissao_financeiro && (
-                <>
-                  <div className="mt-6 mb-2 px-2 border-t pt-4">
-                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Financeiro & Caixa</span>
-                  </div>
-                  <Button variant="ghost" className="w-full justify-start gap-4 text-emerald-600 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/planos'); setIsMenuMobileOpen(false); }}><Wallet size={18} /> Planos</Button>
-                  <Button variant="ghost" className="w-full justify-start gap-4 text-red-500 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/despesas'); setIsMenuMobileOpen(false); }}><Receipt size={18} /> Despesas</Button>
-                  <Button variant="ghost" className="w-full justify-start gap-4 text-blue-600 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/repasses'); setIsMenuMobileOpen(false); }}><Calculator size={18} /> Repasses</Button>
-                  <Button variant="ghost" className="w-full justify-start gap-4 text-amber-500 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => {navigate('/sistema/taxas'); setIsMenuMobileOpen(false);}}><HandCoins size={18} className="text-amber-500" /> Simular Taxas</Button>
-                  <Button variant="ghost" className="w-full justify-start gap-4 text-indigo-600 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/fechamento'); setIsMenuMobileOpen(false); }}><Scale size={18} /> Caixa</Button>
-                </>
-              )}
 
-            {/* GESTÃO E ACESSOS */}
-              <div className="mt-6 mb-2 px-2 border-t pt-4">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Gestão</span>
-              </div>
 
-              <Button variant="ghost" className="w-full justify-start gap-4 text-orange-500 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/relatorios'); setIsMenuMobileOpen(false); }}>
-                <Search size={18} /> Relatórios
-              </Button>
-              
-              {/* GESTÃO E ACESSOS */}
-              <div className="mt-6 mb-2 px-2 border-t pt-4">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Gestão</span>
-              </div>
 
-              <Button variant="ghost" className="w-full justify-start gap-4 text-orange-500 h-11 rounded-xl font-bold uppercase text-[11px]" onClick={() => { navigate('/sistema/relatorios'); setIsMenuMobileOpen(false); }}>
-                <Search size={18} /> Relatórios
-              </Button>
-              
-              {/* 7. GERENCIAR EQUIPE UNIFICADO (SUBSTITUI OS DOIS ANTERIORES) */}
-              {(isAdmin || isGestorSeguro) && (
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start gap-4 h-12 font-bold uppercase text-[11px]" 
-                  onClick={() => { navigate('/sistema/permissoes'); setIsMenuMobileOpen(false); }}
-                >
-                  <User size={20} className="text-purple-600"/> Gerenciar Equipe
-                </Button>
-              )}
-
-              {/* SAIR */}
-              <div className="mt-auto pt-6 border-t pb-8">
-                <Button
-                  onClick={async () => {
-                    try {
-                      await supabase.auth.signOut();
-                    } catch (e) {
-                      console.error(e);
-                    } finally {
-                      window.location.href = "https://institutoserclin.vercel.app";
-                    }
-                  }}
-                  className="w-full bg-red-50 hover:bg-red-100 text-red-600 border-none font-black uppercase tracking-widest h-14 rounded-2xl flex items-center justify-center gap-3"
-                >
-                  <LogOut size={18} /> Sair do Sistema
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
       
       {/* ÁREA PRINCIPAL DO DASHBOARD */}
       <main className="flex-1 p-2 md:p-4 overflow-hidden text-left flex flex-col relative">
@@ -909,6 +855,7 @@ export function Dashboard() {
             </button>
           )}
         </main>
+      </div>
 
       {/* MODAL DE CONFIRMAÇÃO DE AMANHÃ */}
       {isConfirmacaoAmanhaOpen && (

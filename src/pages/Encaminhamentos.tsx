@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 
 import logoSer2 from '@/assets/ser2.png';
-import logoUnimeta from '@/assets/unimeta.png';
 
 const carregarImagem = (src: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
@@ -91,7 +90,7 @@ export function Encaminhamentos() {
       doc.setFontSize(16); doc.setFont("helvetica", "bold"); doc.setTextColor(30, 58, 138);
       doc.text("ENCAMINHAMENTO CLÍNICO INSTITUCIONAL", 105, 65, { align: "center" });
       doc.setFontSize(10); doc.setTextColor(100, 100, 100);
-      doc.text("Parceria Clínica Escola de Psicologia Unimeta & Instituto SerClin", 105, 72, { align: "center" });
+      doc.text("Instituto SerClin - Encaminhamento Clínico Especializado", 105, 72, { align: "center" });
       
       const dataHoje = format(new Date(), "dd/MM/yyyy");
       const idade = calcularIdade(dados.paciente_nascimento);
@@ -113,7 +112,7 @@ export function Encaminhamentos() {
       doc.setFont("helvetica", "bold"); doc.setTextColor(37, 99, 235);
       doc.text(urlValidacao, 105, 250, { align: "center" });
       
-      doc.save(`Encaminhamento_Unimeta_${dados.paciente_nome.replace(/\s+/g, '_')}.pdf`);
+      doc.save(`Encaminhamento_SerClin_${dados.paciente_nome.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error("Erro no PDF:", error);
       toast.error("Erro ao gerar o PDF.");
@@ -172,13 +171,11 @@ export function Encaminhamentos() {
         
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-4 md:p-6 rounded-3xl shadow-sm border border-gray-100">
           <div className="flex items-center gap-3 md:gap-4 justify-center w-full md:w-auto">
-            <img src={logoSer2} alt="SerClin" className="h-14 md:h-20 object-contain max-w-[40%]" />
-            <div className="w-px h-10 bg-gray-200"></div>
-            <img src={logoUnimeta} alt="Unimeta" className="h-12 md:h-16 object-contain max-w-[40%]" />
+            <img src={logoSer2} alt="SerClin" className="h-14 md:h-20 object-contain" />
           </div>
           <div className="text-center md:text-right">
             <h1 className="text-xl md:text-2xl font-black text-[#1e3a8a] uppercase tracking-tighter">Encaminhamentos</h1>
-            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-[0.2em]">Clínica Escola Unimeta</p>
+            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-[0.2em]">Instituto SerClin</p>
           </div>
         </div>
 
