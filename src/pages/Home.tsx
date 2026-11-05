@@ -638,23 +638,22 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 6. DEPOIMENTOS (Prova Social) */}
+        {/* 6. DEPOIMENTOS (Prova Social) — textos reais do Google, sem edição */}
         <section className="py-20 md:py-28 bg-slate-100 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
           <div className="max-w-7xl mx-auto space-y-16">
             
             <div className="text-center max-w-3xl mx-auto space-y-4">
               <span className="text-[#0D4F5C] text-xs md:text-sm font-bold uppercase tracking-widest">
-                Vozes da Transformação
+                Quem já passou por aqui
               </span>
               <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D4F5C]">
-                Histórias que se transformaram.
+                O que dizem no Google.
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              
-              {/* DEPOIMENTO 1 */}
-              {/* SUBSTITUIR POR DEPOIMENTO REAL */}
+
+              {/* DEPOIMENTO 1 — avaliação pública real do Perfil de Empresa no Google */}
               <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center gap-1 text-[#D4A017]">
@@ -663,22 +662,21 @@ export default function Home() {
                     ))}
                   </div>
                   <p className="text-slate-700 italic text-sm leading-relaxed">
-                    "Meu filho tinha muita dificuldade de concentração na escola e as notas estavam caindo. Após a avaliação neuropsicológica no SerClin, descobrimos o diagnóstico correto e iniciamos a terapia. Hoje ele está muito mais confiante."
+                    "Ótimos profissionais, atendimento humanizado, laudos bem detalhados"
                   </p>
                 </div>
                 <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
                   <div className="w-12 h-12 rounded-full bg-[#0D4F5C]/10 text-[#0D4F5C] flex items-center justify-center font-bold text-base">
-                    MR
+                    MS
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900 text-sm">Mariana R., 34 anos</h4>
-                    <p className="text-xs text-slate-500">Mãe do Lucas</p>
+                    <h4 className="font-bold text-slate-900 text-sm">Mariano S.</h4>
+                    <p className="text-xs text-slate-500">Avaliação no Google · 5 estrelas</p>
                   </div>
                 </div>
               </div>
 
-              {/* DEPOIMENTO 2 */}
-              {/* SUBSTITUIR POR DEPOIMENTO REAL */}
+              {/* DEPOIMENTO 2 — avaliação pública real do Perfil de Empresa no Google */}
               <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center gap-1 text-[#D4A017]">
@@ -687,22 +685,21 @@ export default function Home() {
                     ))}
                   </div>
                   <p className="text-slate-700 italic text-sm leading-relaxed">
-                    "Cheguei à clínica no limite do burnout, sem conseguir trabalhar nem dormir direito. O acolhimento humano e a psicoterapia individual mudaram minha rotina. Voltei a ter qualidade de vida e clareza mental."
+                    "Fui muito bem recebida, meu filho amou a doutora Helenara, foi muito gentil com ele. Uma ótima profissional, voltarei outras vezes."
                   </p>
                 </div>
                 <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
                   <div className="w-12 h-12 rounded-full bg-[#0D4F5C]/10 text-[#0D4F5C] flex items-center justify-center font-bold text-base">
-                    CE
+                    RS
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900 text-sm">Carlos E., 42 anos</h4>
-                    <p className="text-xs text-slate-500">Empresário</p>
+                    <h4 className="font-bold text-slate-900 text-sm">Randélia S.</h4>
+                    <p className="text-xs text-slate-500">Avaliação no Google · 5 estrelas</p>
                   </div>
                 </div>
               </div>
 
-              {/* DEPOIMENTO 3 */}
-              {/* SUBSTITUIR POR DEPOIMENTO REAL */}
+              {/* DEPOIMENTO 3 — avaliação pública real do Perfil de Empresa no Google */}
               <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center gap-1 text-[#D4A017]">
@@ -711,16 +708,16 @@ export default function Home() {
                     ))}
                   </div>
                   <p className="text-slate-700 italic text-sm leading-relaxed">
-                    "Sempre tive esquecimentos que me assustavam no trabalho. A equipe fez um protocolo cuidadoso, me explicou tudo na devolutiva de forma simples e agora sigo um plano cognitivo excelente."
+                    "Ótimo atendimento e profissionalismo de alto nível"
                   </p>
                 </div>
                 <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
                   <div className="w-12 h-12 rounded-full bg-[#0D4F5C]/10 text-[#0D4F5C] flex items-center justify-center font-bold text-base">
-                    FM
+                    WO
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900 text-sm">Fernanda M., 29 anos</h4>
-                    <p className="text-xs text-slate-500">Arquiteta</p>
+                    <h4 className="font-bold text-slate-900 text-sm">Widisney O.</h4>
+                    <p className="text-xs text-slate-500">Avaliação no Google · 5 estrelas</p>
                   </div>
                 </div>
               </div>
