@@ -495,6 +495,13 @@ export default function Home() {
                       <span>Encaminhamento personalizado</span>
                     </li>
                   </ul>
+
+                  <a
+                    href="/avaliacao-neuropsicologica"
+                    className="inline-flex items-center gap-2 pt-2 text-sm font-bold text-[#0D4F5C] underline underline-offset-4 hover:text-[#093D47]"
+                  >
+                    Saiba como funciona a avaliação →
+                  </a>
                 </div>
               </div>
 
