@@ -8,6 +8,7 @@ import FormularioAlerta from './pages/corporativo/FormularioAlerta';
 // --- IMPORTAÇÃO DAS PÁGINAS ---
 import Home from './pages/Home';
 import AvaliacaoNeuropsicologica from './pages/AvaliacaoNeuropsicologica';
+import Empresas from './pages/Empresas';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Pacientes } from './pages/Pacientes';
@@ -127,6 +128,7 @@ function App() {
             ========================================== */}
         <Route path="/" element={<Home />} />
         <Route path="/avaliacao-neuropsicologica" element={<AvaliacaoNeuropsicologica />} />
+        <Route path="/empresas" element={<Empresas />} />
         <Route path="/login" element={<Login />} />
         <Route path="/checkin" element={<Checkin />} />
         <Route path="/validar/:id" element={<Validar />} />

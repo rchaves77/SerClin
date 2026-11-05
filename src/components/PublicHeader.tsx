@@ -8,6 +8,7 @@ const WHATSAPP_URL =
 const NAV_LINKS = [
   { label: "Início", href: "/" },
   { label: "Especialidades", href: "/#especialidades" },
+  { label: "Empresas", href: "/empresas" },
   { label: "Planos", href: "/#investimento" },
   { label: "Contato", href: "/#contato" },
 ];
