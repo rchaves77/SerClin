@@ -46,28 +46,13 @@ const AUTHORITY_STATS = [
   { value: "30 dias", label: "para o laudo, após os testes" },
 ];
 
-/* PROVA SOCIAL — avaliações públicas do Perfil de Empresa no Google
-   (todas as avaliações do perfil são 5 estrelas, conferido em 05/11/2026).
+/* PROVA SOCIAL — regra do plano do site: sem depoimentos, sem nomes de
+   pacientes e sem contagem de avaliações. Só a nota do Google (5,0,
+   conferida em 05/11/2026), credenciais e equipe.
    Cole o link do perfil em GOOGLE_REVIEWS_URL para mostrar o botão
-   "Ver todas as avaliações". */
+   "Ver as avaliações no Google". */
 const GOOGLE_REVIEWS_URL = "";
 const GOOGLE_RATING = "5,0";
-const GOOGLE_REVIEW_COUNT = "mais de 25";
-type Testimonial = { text: string; author: string };
-const TESTIMONIALS: Testimonial[] = [
-  {
-    text: "Ótimos profissionais, atendimento humanizado, laudos bem detalhados",
-    author: "Mariano S.",
-  },
-  {
-    text: "Fui muito bem recebida, meu filho amou a doutora Helenara, foi muito gentil com ele. Uma ótima profissional, voltarei outras vezes.",
-    author: "Randélia S.",
-  },
-  {
-    text: "Ótimo atendimento e profissionalismo de alto nível",
-    author: "Widisney O.",
-  },
-];
 
 /* PLANO PÓS-LAUDO — assinatura para quem conclui a avaliação.
    Espelha o "Plano Completo" já publicado na Home (4 sessões/mês de 50 min,
@@ -368,8 +353,6 @@ function SectionHeading({
 export default function AvaliacaoNeuropsicologica() {
   usePageSeo();
 
-  const hasTestimonials = TESTIMONIALS.length > 0;
-
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased selection:bg-[#0D4F5C] selection:text-white">
       <PublicHeader />
@@ -575,57 +558,34 @@ export default function AvaliacaoNeuropsicologica() {
           </div>
         </section>
 
-        {/* 6. PROVA SOCIAL — avaliações reais do Google */}
-        {hasTestimonials && (
-          <section id="depoimentos" className="neuro-reviews bg-slate-100 px-4 py-16 md:py-24">
-            <div className="mx-auto max-w-7xl">
-              <SectionHeading
-                eyebrow="Quem já passou por aqui"
-                title="O que as famílias dizem no Google."
-              />
-
-              {GOOGLE_RATING && (
-                <p className="mb-8 flex items-center justify-center gap-2 text-lg font-bold text-[#0D4F5C]">
-                  <Star className="h-5 w-5 fill-[#D4A017] text-[#D4A017]" aria-hidden="true" />
-                  {GOOGLE_RATING}
-                  {GOOGLE_REVIEW_COUNT && (
-                    <span className="text-sm font-normal text-slate-500">
-                      ({GOOGLE_REVIEW_COUNT} avaliações)
-                    </span>
-                  )}
-                </p>
-              )}
-
-              <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
-                {TESTIMONIALS.map((testimonial) => (
-                  <figure
-                    key={testimonial.author + testimonial.text.slice(0, 20)}
-                    className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-                  >
-                    <div className="mb-3 flex items-center gap-1 text-[#D4A017]" aria-label="5 estrelas">
-                      {[0, 1, 2, 3, 4].map((i) => (
-                        <Star key={i} className="h-5 w-5 fill-current" aria-hidden="true" />
-                      ))}
-                    </div>
-                    <blockquote className="mb-4 text-base italic leading-relaxed text-slate-700">
-                      “{testimonial.text}”
-                    </blockquote>
-                    <figcaption className="text-sm font-bold text-[#0D4F5C]">
-                      {testimonial.author}
-                    </figcaption>
-                  </figure>
+        {/* 6. PROVA SOCIAL — só a nota do Google, sem falas, nomes ou contagem */}
+        {GOOGLE_RATING && (
+          <section id="avaliacao-google" className="neuro-reviews bg-slate-100 px-4 py-12 md:py-16">
+            <div className="mx-auto max-w-3xl text-center">
+              <div
+                className="mb-3 flex items-center justify-center gap-1 text-[#D4A017]"
+                aria-label={`Nota ${GOOGLE_RATING} no Google`}
+              >
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <Star key={i} className="h-6 w-6 fill-current" aria-hidden="true" />
                 ))}
               </div>
+              <p className="font-serif text-2xl font-bold text-[#0D4F5C] md:text-3xl">
+                Nota {GOOGLE_RATING} no Google
+              </p>
+              <p className="mt-2 text-sm text-slate-600">
+                Avaliação pública dos pacientes do Instituto SerClin, em Rio Branco.
+              </p>
 
               {GOOGLE_REVIEWS_URL && (
-                <p className="mt-8 text-center">
+                <p className="mt-6">
                   <a
                     href={GOOGLE_REVIEWS_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-bold text-[#0D4F5C] underline underline-offset-4 hover:text-[#093D47]"
                   >
-                    Ver todas as avaliações no Google
+                    Ver as avaliações no Google
                   </a>
                 </p>
               )}

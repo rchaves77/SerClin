@@ -638,92 +638,20 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 6. DEPOIMENTOS (Prova Social) — textos reais do Google, sem edição */}
-        <section className="py-20 md:py-28 bg-slate-100 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
-          <div className="max-w-7xl mx-auto space-y-16">
-            
-            <div className="text-center max-w-3xl mx-auto space-y-4">
-              <span className="text-[#0D4F5C] text-xs md:text-sm font-bold uppercase tracking-widest">
-                Quem já passou por aqui
-              </span>
-              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D4F5C]">
-                O que dizem no Google.
-              </h2>
+        {/* 6. PROVA SOCIAL — regra do plano: sem depoimentos, nomes ou contagem; só nota do Google, credenciais e equipe */}
+        <section className="py-16 md:py-20 bg-slate-100 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
+          <div className="max-w-3xl mx-auto text-center space-y-4">
+            <div className="flex items-center justify-center gap-1 text-[#D4A017]" aria-label="Nota 5,0 no Google">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-6 h-6 fill-current" aria-hidden="true" />
+              ))}
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-              {/* DEPOIMENTO 1 — avaliação pública real do Perfil de Empresa no Google */}
-              <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-1 text-[#D4A017]">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-slate-700 italic text-sm leading-relaxed">
-                    "Ótimos profissionais, atendimento humanizado, laudos bem detalhados"
-                  </p>
-                </div>
-                <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
-                  <div className="w-12 h-12 rounded-full bg-[#0D4F5C]/10 text-[#0D4F5C] flex items-center justify-center font-bold text-base">
-                    MS
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm">Mariano S.</h4>
-                    <p className="text-xs text-slate-500">Avaliação no Google · 5 estrelas</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* DEPOIMENTO 2 — avaliação pública real do Perfil de Empresa no Google */}
-              <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-1 text-[#D4A017]">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-slate-700 italic text-sm leading-relaxed">
-                    "Fui muito bem recebida, meu filho amou a doutora Helenara, foi muito gentil com ele. Uma ótima profissional, voltarei outras vezes."
-                  </p>
-                </div>
-                <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
-                  <div className="w-12 h-12 rounded-full bg-[#0D4F5C]/10 text-[#0D4F5C] flex items-center justify-center font-bold text-base">
-                    RS
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm">Randélia S.</h4>
-                    <p className="text-xs text-slate-500">Avaliação no Google · 5 estrelas</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* DEPOIMENTO 3 — avaliação pública real do Perfil de Empresa no Google */}
-              <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-1 text-[#D4A017]">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-slate-700 italic text-sm leading-relaxed">
-                    "Ótimo atendimento e profissionalismo de alto nível"
-                  </p>
-                </div>
-                <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
-                  <div className="w-12 h-12 rounded-full bg-[#0D4F5C]/10 text-[#0D4F5C] flex items-center justify-center font-bold text-base">
-                    WO
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm">Widisney O.</h4>
-                    <p className="text-xs text-slate-500">Avaliação no Google · 5 estrelas</p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#0D4F5C]">
+              Nota 5,0 no Google
+            </h2>
+            <p className="text-slate-600 text-sm md:text-base">
+              Helenara Chaves • USP-SP • +10 anos de experiência • Equipe multiprofissional
+            </p>
           </div>
         </section>
 
